@@ -1,0 +1,46 @@
+repos:
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.9.6
+  hooks:
+    # Run the linter.
+    - id: ruff
+      args: [ --fix ]
+    # Run the formatter.
+    - id: ruff-format
+
+- repo: https://github.com/jazzband/pip-tools
+  rev: 7.3.0
+  hooks:
+    - id: pip-compile
+      name: pip-compile pyproject.toml
+      args: [--generate-hashes, --output-file=requirements.txt, pyproject.toml]
+      always_run: true
+      pass_filenames: false
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+    - id: trailing-whitespace  # Removes trailing whitespace
+    - id: end-of-file-fixer    # Ensures files end with a newline
+    - id: check-yaml           # Validates YAML files
+    - id: check-json           # Validates JSON files
+    - id: check-toml           # Validates TOML files
+    - id: debug-statements     # Checks for debugger imports and py37+ breakpoint() calls
+    - id: detect-private-key   # Detects private keys
+
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.28.0
+  hooks:
+    - id: check-github-workflows  # Validates GitHub workflow files
+
+- repo: https://github.com/compilerla/conventional-pre-commit
+  rev: v3.1.0
+  hooks:
+    - id: conventional-pre-commit  # Enforces conventional commit message format
+      stages: [commit-msg]
+
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.18.2
+  hooks:
+    - id: gitleaks  # Scans for secrets, credentials, and sensitive information
