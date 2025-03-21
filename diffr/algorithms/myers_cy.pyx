@@ -7,8 +7,12 @@ def shortest_edit_script(old: list, new: list) -> list:
     """
     Optimized Cython implementation of Myers' algorithm to find the shortest edit script.
     """
-    cdef int n = len(old)
-    cdef int m = len(new)
+    # Convert inputs to simple strings for safer comparison
+    old_strings = [str(item) if item is not None else "" for item in old]
+    new_strings = [str(item) if item is not None else "" for item in new]
+
+    cdef int n = len(old_strings)
+    cdef int m = len(new_strings)
     cdef int max_edit_distance = n + m
     cdef dict v = {}
     cdef dict path = {}
@@ -35,7 +39,7 @@ def shortest_edit_script(old: list, new: list) -> list:
             path[(k, d)] = previous_k
 
             # Follow diagonal
-            while x < n and y < m and old[x] == new[y]:
+            while x < n and y < m and old_strings[x] == new_strings[y]:
                 x += 1
                 y += 1
 

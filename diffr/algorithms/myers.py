@@ -1,14 +1,20 @@
 import logging
-
+from ..data_models.diff import FullDiff
 from .base import DiffrAlgorithm
 
-# Import Cython implementations
-try:
-    from diffr.algorithms.myers_cy import create_diff_output, shortest_edit_script
+TRY_CYTHON = False
 
-    _CYTHON_AVAILABLE = True
-except ImportError:
+if TRY_CYTHON:
+    # Import Cython implementations
+    try:
+        from diffr.algorithms.myers_cy import create_diff_output, shortest_edit_script
+
+        _CYTHON_AVAILABLE = True
+    except ImportError:
+        _CYTHON_AVAILABLE = False
+else:
     _CYTHON_AVAILABLE = False
+
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +60,7 @@ class MyersDiff(DiffrAlgorithm):
             result: dict = self._create_diff_output(old_lines, new_lines, lcs)
 
         logger.info("Diff computation completed")
-        return result
+        return FullDiff(**result)
 
     def _shortest_edit_script(self, old: list[str], new: list[str]) -> list[tuple[int, int]]:
         logger.debug("Computing shortest edit script")
