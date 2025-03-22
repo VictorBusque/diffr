@@ -1,3 +1,5 @@
+# cython: boundscheck=False, wraparound=False
+
 import re
 from libc.stdlib cimport malloc, free
 
@@ -13,8 +15,9 @@ cpdef list[str] tokenize(text: str):
 cpdef list diff_line(str original, str updated):
     cdef list[str] words1 = tokenize(original) if original else []
     cdef list[str] words2 = tokenize(updated) if updated else []
-    cdef int N = len(words1)
-    cdef int M = len(words2)
+    
+    cdef Py_ssize_t N = len(words1)
+    cdef Py_ssize_t M = len(words2)
 
     if N == 0 and M == 0:
         return []
@@ -23,15 +26,15 @@ cpdef list diff_line(str original, str updated):
     if M == 0:
         return [{"op": "delete", "words": [word]} for word in words1]
 
-    cdef int max_d = N + M
+    cdef Py_ssize_t max_d = N + M
     cdef dict V = {0: 0}
     cdef list trace = []
 
-    cdef int d, k, x, y, prev_x, prev_y, prev_k, v_km, v_kp
+    cdef Py_ssize_t d, k, x, y, prev_x, prev_y, prev_k, v_km, v_kp
     cdef dict current_V
 
     cdef str w1, w2
-
+    cdef list backtrack
 
     for d in range(max_d + 1):
         current_V = {}
@@ -65,15 +68,15 @@ cpdef list diff_line(str original, str updated):
 
 cpdef list _backtrack(list words1, list words2, list trace):
     cdef list script = []
-    cdef int x = len(words1)
-    cdef int y = len(words2)
+    cdef Py_ssize_t x = len(words1)
+    cdef Py_ssize_t y = len(words2)
 
     cdef dict v
-    cdef int d, k, prev_k, prev_x, prev_y
+    cdef Py_ssize_t d, k, prev_k, prev_x, prev_y
     cdef str op
 
     for d in range(len(trace) - 1, 0, -1):
-        v = trace[d - 1]  # ← FIXED: we came from the previous step
+        v = trace[d - 1]
         k = x - y
 
         if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):
@@ -91,21 +94,21 @@ cpdef list _backtrack(list words1, list words2, list trace):
         while x > prev_x and y > prev_y:
             x -= 1
             y -= 1
-            script.append({"op": "equal", "words": [words1[x]]})
+            script.append(("equal", words1[x]))
 
         # Record the actual insert/delete
         if op == "insert":
             y -= 1
-            script.append({"op": "insert", "words": [words2[y]]})
+            script.append(("insert", words2[y]))
         else:
             x -= 1
-            script.append({"op": "delete", "words": [words1[x]]})
+            script.append(("delete", words1[x]))
 
     # Final snake to beginning if needed
     while x > 0 and y > 0 and words1[x - 1] == words2[y - 1]:
         x -= 1
         y -= 1
-        script.append({"op": "equal", "words": [words1[x]]})
+        script.append(("equal", words1[x]))
 
     script.reverse()
     return script

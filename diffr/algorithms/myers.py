@@ -71,21 +71,22 @@ def _backtrack(words1, words2, trace):
         while x > prev_x and y > prev_y:
             x -= 1
             y -= 1
-            script.append({"op": "equal", "words": [words1[x]]})
+            script.append(("equal", words1[x]))
 
         # Record the actual insert/delete
         if op == "insert":
             y -= 1
-            script.append({"op": "insert", "words": [words2[y]]})
+            script.append(("insert", words2[y]))
         else:
             x -= 1
-            script.append({"op": "delete", "words": [words1[x]]})
+
+            script.append(("delete", words1[x]))
 
     # Final snake to beginning if needed
     while x > 0 and y > 0 and words1[x - 1] == words2[y - 1]:
         x -= 1
         y -= 1
-        script.append({"op": "equal", "words": [words1[x]]})
+        script.append(("equal", words1[x]))
 
     script.reverse()
     return script
