@@ -1,186 +1,120 @@
-# cython: language_level=3, boundscheck=False, wraparound=False, nonecheck=False
+import re
+from libc.stdlib cimport malloc, free
 
-import cython
 
-@cython.ccall
-def shortest_edit_script(old: list, new: list) -> list:
-    """
-    Optimized Cython implementation of Myers' algorithm to find the shortest edit script.
-    """
-    # Convert inputs to simple strings for safer comparison
-    old_strings = [str(item) if item is not None else "" for item in old]
-    new_strings = [str(item) if item is not None else "" for item in new]
+compiled_re = re.compile(r"\w+|[^\w\s]", re.UNICODE)
 
-    cdef int n = len(old_strings)
-    cdef int m = len(new_strings)
-    cdef int max_edit_distance = n + m
-    cdef dict v = {}
-    cdef dict path = {}
-    cdef int d, k, x, y, previous_k
 
-    # Handle edge cases
-    if n == 0 or m == 0:
+cpdef list[str] tokenize(text: str):
+    tokens = compiled_re.findall(text, re.UNICODE)
+    return tokens
+
+
+cpdef list diff_line(str original, str updated):
+    cdef list[str] words1 = tokenize(original) if original else []
+    cdef list[str] words2 = tokenize(updated) if updated else []
+    cdef int N = len(words1)
+    cdef int M = len(words2)
+
+    if N == 0 and M == 0:
         return []
+    if N == 0:
+        return [{"op": "insert", "words": [word]} for word in words2]
+    if M == 0:
+        return [{"op": "delete", "words": [word]} for word in words1]
 
-    # Find the middle snake
-    for d in range(max_edit_distance + 1):
+    cdef int max_d = N + M
+    cdef dict V = {0: 0}
+    cdef list trace = []
+
+    cdef int d, k, x, y, prev_x, prev_y, prev_k, v_km, v_kp
+    cdef dict current_V
+
+    cdef str w1, w2
+
+
+    for d in range(max_d + 1):
+        current_V = {}
+        
         for k in range(-d, d + 1, 2):
-            # Decide whether to go down or right
-            if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):
-                x = v.get(k + 1, -1)
-                previous_k = k + 1
+            v_km = V.get(k - 1, -1)
+            v_kp = V.get(k + 1, -1)
+            if k == -d or (k != d and v_km < v_kp):
+                x = V.get(k + 1, 0)  # Insert
             else:
-                x = v.get(k - 1, -1) + 1
-                previous_k = k - 1
-
+                x = V.get(k - 1, 0) + 1  # Delete
             y = x - k
 
-            # Save the path
-            path[(k, d)] = previous_k
-
-            # Follow diagonal
-            while x < n and y < m and old_strings[x] == new_strings[y]:
+            # Snake forward while words match
+            while x < N and y < M:
+                w1 = words1[x]
+                w2 = words2[y]
+                if w1 != w2:
+                    break
                 x += 1
                 y += 1
+            current_V[k] = x
 
-            v[k] = x
+            if x >= N and y >= M:
+                trace.append(current_V)
+                return _backtrack(words1, words2, trace)
 
-            # Check if we've reached the end
-            if x >= n and y >= m:
-                # Reconstruct the path
-                return backtrack_path(path, n, m, d)
+        trace.append(current_V)
+        V = current_V
 
-    return []
 
-@cython.ccall
-def backtrack_path(dict path, int n, int m, int d) -> list:
-    """
-    Optimized Cython implementation to backtrack through the path.
-    """
-    cdef list points = []
-    cdef int x = n
-    cdef int y = m
-    cdef int k = x - y
-    cdef int d_val, previous_k, x_prev, y_prev
+cpdef list _backtrack(list words1, list words2, list trace):
+    cdef list script = []
+    cdef int x = len(words1)
+    cdef int y = len(words2)
 
-    if d == 0:
-        # If the sequences are identical
-        return [(i, i) for i in range(n)]
+    cdef dict v
+    cdef int d, k, prev_k, prev_x, prev_y
+    cdef str op
 
-    for d_val in range(d, 0, -1):
-        previous_k = path.get((k, d_val))
+    for d in range(len(trace) - 1, 0, -1):
+        v = trace[d - 1]  # ← FIXED: we came from the previous step
+        k = x - y
 
-        # Determine if we moved down or right
-        if previous_k == k + 1:
-            # Moved down
-            y_prev = y - 1
-            x_prev = x
+        if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):
+            prev_k = k + 1
+            prev_x = v.get(prev_k, 0)
+            prev_y = prev_x - prev_k
+            op = "insert"
         else:
-            # Moved right
-            x_prev = x - 1
-            y_prev = y
+            prev_k = k - 1
+            prev_x = v.get(prev_k, 0) + 1
+            prev_y = prev_x - prev_k
+            op = "delete"
 
-        # Add any diagonal moves
-        while x > x_prev and y > y_prev:
+        # Snake back through matches
+        while x > prev_x and y > prev_y:
             x -= 1
             y -= 1
-            points.append((x, y))
+            script.append({"op": "equal", "words": [words1[x]]})
 
-        if d_val > 0:
-            k = previous_k
-            x, y = x_prev, y_prev
+        # Record the actual insert/delete
+        if op == "insert":
+            y -= 1
+            script.append({"op": "insert", "words": [words2[y]]})
+        else:
+            x -= 1
+            script.append({"op": "delete", "words": [words1[x]]})
 
-    # Sort since we built the path out of order
-    points.sort()
-    return points
+    # Final snake to beginning if needed
+    while x > 0 and y > 0 and words1[x - 1] == words2[y - 1]:
+        x -= 1
+        y -= 1
+        script.append({"op": "equal", "words": [words1[x]]})
 
-@cython.ccall
-def create_diff_output(old_lines: list, new_lines: list, lcs_points: list) -> dict:
-    """
-    Optimized Cython implementation to convert the edit script into a diff object using native structures.
-    """
-    # Declarations moved to the top of the function
-    cdef set lcs_set = set(lcs_points)
-    cdef list line_diffs = []
-    cdef int old_idx = 0, new_idx = 0, i, current_block_number = 1, n_line_diffs, j
-    cdef list blocks = []
-    cdef list current_block = []
-    cdef bint changes_found
-    cdef dict line_diff
+    script.reverse()
+    return script
 
-    # Build a list of line differences
-    while old_idx < len(old_lines) or new_idx < len(new_lines):
-        if old_idx < len(old_lines) and new_idx < len(new_lines) and (old_idx, new_idx) in lcs_set:
-            # Lines match
-            line_diffs.append(
-                {
-                    "line_number": new_idx + 1,
-                    "content": old_lines[old_idx],
-                    "added": False,
-                    "removed": False,
-                    "word_diffs": [],  # No word diffs for unchanged lines
-                }
-            )
-            old_idx += 1
-            new_idx += 1
-        elif old_idx < len(old_lines) and (old_idx, new_idx) not in lcs_set:
-            # Line removed
-            line_diffs.append(
-                {
-                    "line_number": old_idx + 1,
-                    "content": old_lines[old_idx],
-                    "added": False,
-                    "removed": True,
-                    "word_diffs": [{"word": old_lines[old_idx].rstrip(), "added": False, "removed": True}],
-                }
-            )
-            old_idx += 1
-        elif new_idx < len(new_lines) and (old_idx, new_idx) not in lcs_set:
-            # Line added
-            line_diffs.append(
-                {
-                    "line_number": new_idx + 1,
-                    "content": new_lines[new_idx],
-                    "added": True,
-                    "removed": False,
-                    "word_diffs": [{"word": new_lines[new_idx].rstrip(), "added": True, "removed": False}],
-                }
-            )
-            new_idx += 1
 
-    # Group line diffs into blocks using optimized block creation logic
-    if line_diffs:
-        n_line_diffs = len(line_diffs)
-        for i in range(n_line_diffs):
-            changes_found = False
-            line_diff = line_diffs[i]
-            if i >= 3:
-                for j in range(i - 3, i):
-                    if line_diffs[j]["added"] or line_diffs[j]["removed"]:
-                        changes_found = True
-                        break
+if __name__ == "__main__":
+    original = "I love writing code"
+    updated = "I enjoy writing Python code"
 
-            if (
-                i == 0
-                or (
-                    not line_diff["added"]
-                    and not line_diff["removed"]
-                    and (line_diffs[i - 1]["added"] or line_diffs[i - 1]["removed"])
-                )
-                or (
-                    i >= 3
-                    and not changes_found
-                    and (line_diff["added"] or line_diff["removed"])
-                )
-            ):
-                if current_block:
-                    blocks.append({"block_number": current_block_number, "lines": current_block})
-                    current_block_number += 1
-                    current_block = []
-            current_block.append(line_diff)
-
-        if current_block:
-            blocks.append({"block_number": current_block_number, "lines": current_block})
-
-    # Create and return the full diff object
-    return {"blocks": blocks}
+    result = diff_line(original, updated)
+    for r in result:
+        print(r)
