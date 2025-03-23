@@ -3,6 +3,7 @@
 
 from libc.stdlib cimport malloc, free
 cimport cython
+from libc.string cimport memcpy
 from cpython.pycapsule cimport PyCapsule_New, PyCapsule_GetPointer
 
 # Helpers for character classification remain unchanged.
@@ -111,8 +112,7 @@ cpdef list[tuple[str, str]] diff_line(str original, str updated):
                    free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
               raise MemoryError()
          # Copy the previous V.
-         for i in range(size):
-              current_V[i] = V[i]
+         memcpy(current_V, V, size * sizeof(int))
          for k in range(-d, d + 1, 2):
               k_index = k + offset
               if k == -d:
@@ -164,7 +164,7 @@ cdef list _backtrack_fast(list words1, list words2, list trace, int offset, Py_s
               prev_x = get_deletion(v, prev_k, offset, size) + 1
               is_insert = False
          prev_y = prev_x - prev_k
-         snake_len = (x - prev_x) if (x - prev_x) < (y - prev_y) else (y - prev_y)
+         snake_len = min(x - prev_x, y - prev_y)
          for i in range(snake_len):
               x -= 1
               y -= 1
