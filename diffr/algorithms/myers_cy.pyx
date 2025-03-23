@@ -12,7 +12,7 @@ from cpython.unicode cimport (
 )
 cimport cython
 
-cpdef list tokenize(str text):
+cpdef list[str] tokenize(str text):
     """
     Tokenizes the given text into a list of tokens where each token is either
     a contiguous sequence of word characters (letters, digits, underscore)
@@ -21,7 +21,7 @@ cpdef list tokenize(str text):
     This implementation replicates the behavior of:
         re.compile(r"\w+|[^\w\s]", re.UNICODE).findall(text)
     """
-    cdef list tokens = []
+    cdef list[str] tokens = []
     cdef Py_ssize_t i = 0, start, n = len(text)
     cdef int kind = PyUnicode_KIND(text)
     cdef void *data = PyUnicode_DATA(text)
@@ -66,21 +66,22 @@ cpdef list[tuple[str, str]] diff_line(str original, str updated):
         return [{"op": "delete", "words": [word]} for word in words1]
 
     cdef Py_ssize_t max_d = N + M
-    cdef dict V = {0: 0}
-    cdef list trace = []
+    cdef dict[int, int] V = {0: 0}
+    cdef list[dict[int, int]] trace = []
 
     cdef Py_ssize_t d, k, x, y, prev_x, prev_y, prev_k, v_km, v_kp
-    cdef dict current_V
+    cdef dict[int, int] current_V
 
     cdef str w1, w2
-    cdef list backtrack
+    cdef list[tuple[str, str]] backtrack
 
     for d in range(max_d + 1):
         current_V = {}
         
         for k in range(-d, d + 1, 2):
-            v_km = V.get(k - 1, -1)
-            v_kp = V.get(k + 1, -1)
+            v_km = V[k - 1] if (k - 1) in V else -1
+            v_kp = V[k + 1] if (k + 1) in V else -1
+        
             if k == -d or (k != d and v_km < v_kp):
                 x = V.get(k + 1, 0)  # Insert
             else:
@@ -106,11 +107,11 @@ cpdef list[tuple[str, str]] diff_line(str original, str updated):
 
 
 cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):
-    cdef list script = []
+    cdef list[tuple[str, str]] script = []
     cdef Py_ssize_t x = len(words1)
     cdef Py_ssize_t y = len(words2)
 
-    cdef dict v
+    cdef dict[int, int] v
     cdef Py_ssize_t d, k, prev_k, prev_x, prev_y
     cdef str op
 
