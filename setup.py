@@ -15,9 +15,14 @@ def get_extensions():  # noqa: D103
     extensions = [
         Extension(
             "diffr.algorithms.myers_cy",
-            ["diffr/algorithms/myers_cy.pyx"],
+            sources=["diffr/algorithms/myers_cy.pyx"],
             extra_compile_args=["-O3"],  # Optimize for speed
-        )
+        ),
+        Extension(
+            "diffr.algorithms.patience_cy",
+            sources=["diffr/algorithms/patience_cy.pyx"],
+            extra_compile_args=["-O3"],  # Optimize for speed
+        ),
     ]
 
     return cythonize(
