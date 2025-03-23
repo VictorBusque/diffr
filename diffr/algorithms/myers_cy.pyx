@@ -33,7 +33,7 @@ cdef bint is_alnum_or_underscore(int ch):
         return True
     return False
 
-
+@cython.final
 cpdef list[str] tokenize(str text):
     """
     Tokenizes text into a list of tokens where each token is either a
@@ -50,18 +50,22 @@ cpdef list[str] tokenize(str text):
         if is_ascii_space(ch):
             i += 1
         elif is_alnum_or_underscore(ch):
-            # gather a contiguous run of letters/digits/underscore
             start = i
-            while i < n and is_alnum_or_underscore(ord(text[i])):
+            while i < n:
+                ch = ord(text[i])
+                if not is_alnum_or_underscore(ch):
+                    break
                 i += 1
             tokens.append(text[start:i])
         else:
-            # a single punctuation or symbol
             tokens.append(text[i:i+1])
             i += 1
 
+
     return tokens
 
+
+@cython.final
 cpdef list[tuple[str, str]] diff_line(str original, str updated):
     # Tokenize input strings into lists of words
     cdef list[str] words1 = tokenize(original) if original else []
@@ -81,11 +85,11 @@ cpdef list[tuple[str, str]] diff_line(str original, str updated):
 
     # Initialize variables for Myers diff algorithm
     cdef Py_ssize_t max_d = N + M
-    cdef dict V = {0: 0}  # Diagonal map: k -> x
+    cdef dict[int, int] V = {0: 0}  # Diagonal map: k -> x
     cdef list trace = []  # Store V states for backtracking
 
     cdef Py_ssize_t d, k, x, y, v_km, v_kp
-    cdef dict current_V
+    cdef dict[int, int] current_V
 
     # Forward pass: Build the shortest edit path
     for d in range(max_d + 1):
@@ -93,8 +97,8 @@ cpdef list[tuple[str, str]] diff_line(str original, str updated):
         
         for k in range(-d, d + 1, 2):
             # Get furthest x values for adjacent diagonals
-            v_km = V.get(k - 1, -1)  # k - 1 (delete direction)
-            v_kp = V.get(k + 1, -1)  # k + 1 (insert direction)
+            v_km = V[k - 1] if k - 1 in V else -1
+            v_kp = V[k + 1] if k + 1 in V else -1
         
             # Choose direction: insert or delete
             if k == -d or (k != d and v_km < v_kp):
@@ -117,12 +121,14 @@ cpdef list[tuple[str, str]] diff_line(str original, str updated):
         trace.append(current_V)
         V = current_V
 
+
+@cython.final
 cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):
     cdef list[tuple[str, str]] script = []
     cdef Py_ssize_t x = len(words1)
     cdef Py_ssize_t y = len(words2)
 
-    cdef dict v
+    cdef dict[int, int] v
     cdef Py_ssize_t d, k, prev_k, prev_x, prev_y
     cdef str op
 
