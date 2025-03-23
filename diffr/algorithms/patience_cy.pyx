@@ -1,32 +1,32 @@
-# cython: boundscheck=False, wraparound=False, cdivision=True
+# cython: boundscheck=True, wraparound=True, cdivision=False
 
 from typing import List, Tuple
+# Import diff_line from your Myers diff module.
 from .myers_cy import diff_line
+from diffr.data_models.diff import PatienceDiffResult, LineDiff, TokenDiff
+from diffr.utils.intra_line_differ import compute_token_diffs
 
-cpdef List[Tuple[str, str]] patience_diff(str original, str updated):
+def patience_diff(original: str, updated: str) -> List[Tuple[str, str]]:
     """
     Compute a diff between two texts using a patience diff algorithm.
     Returns a list of (original_line, updated_line) tuples.
     For unchanged lines, both strings are equal.
     For insertions/deletions one side is the empty string.
     """
-    cdef list orig_lines = original.splitlines()
-    cdef list upd_lines = updated.splitlines()
+    orig_lines = original.splitlines()
+    upd_lines = updated.splitlines()
     return _diff_recursive(orig_lines, upd_lines, 0, len(orig_lines), 0, len(upd_lines))
 
-
-cdef list _diff_recursive(list orig, list upd, int ostart, int oend, int ustart, int uend):
+def _diff_recursive(orig, upd, int ostart, int oend, int ustart, int uend):
     """
     Recursively diff the slices orig[ostart:oend] and upd[ustart:uend]
     using the patience algorithm.
     """
     cdef list result = []
-    cdef int i, j, k
-
-    cdef int len_orig
-    cdef int len_upd
-    cdef int min_len
-
+    cdef int len_orig, len_upd, min_len, k
+    cdef int prev_o, prev_u, i, j
+    cdef tuple anchor
+    
     # Base cases: one or both ranges are empty.
     if ostart >= oend and ustart >= uend:
         return result
@@ -80,6 +80,7 @@ cdef list _diff_recursive(list orig, list upd, int ostart, int oend, int ustart,
             len_orig = oend - ostart
             len_upd = uend - ustart
             min_len = len_orig if len_orig < len_upd else len_upd
+            
             for k in range(min_len):
                 result.extend(diff_line(orig[ostart+k], upd[ustart+k]))
             for k in range(min_len, len_orig):
@@ -89,9 +90,9 @@ cdef list _diff_recursive(list orig, list upd, int ostart, int oend, int ustart,
             return result
 
     # Recursively diff segments around each anchor.
-    cdef int prev_o = ostart
-    cdef int prev_u = ustart
-    cdef tuple anchor
+    prev_o = ostart
+    prev_u = ustart
+    
     for anchor in lis:
         i = anchor[0]
         j = anchor[1]
@@ -105,8 +106,7 @@ cdef list _diff_recursive(list orig, list upd, int ostart, int oend, int ustart,
     result.extend(_diff_recursive(orig, upd, prev_o, oend, prev_u, uend))
     return result
 
-
-cdef list _longest_increasing_subsequence(list common):
+def _longest_increasing_subsequence(common):
     """
     Given a list of tuples (i, j, line) sorted by i (and then j),
     compute the longest increasing subsequence based on the j values.
@@ -117,13 +117,9 @@ cdef list _longest_increasing_subsequence(list common):
         return []
     cdef list tails = []          # stores the last j value of each subsequence length
     cdef list tails_indices = []  # stores indices in 'common' corresponding to tails
-    cdef list prev = [0] * n      # predecessor indices for reconstruction
+    cdef list prev = [ -1 for _ in range(n) ]  # predecessor indices for reconstruction
     cdef int index, pos, lo, hi, mid
     cdef tuple curr
-
-    # Initialize predecessor list.
-    for index in range(n):
-        prev[index] = -1
 
     for index in range(n):
         curr = common[index]
@@ -148,7 +144,6 @@ cdef list _longest_increasing_subsequence(list common):
         else:
             prev[index] = -1
 
-    # Reconstruct the longest increasing subsequence.
     cdef list lis = []
     pos = tails_indices[-1]
     while pos != -1:
@@ -156,3 +151,32 @@ cdef list _longest_increasing_subsequence(list common):
         pos = prev[pos]
     lis.reverse()
     return lis
+
+def get_patience_diff_result(original: str, updated: str) -> PatienceDiffResult:
+    """
+    Compute a diff between two texts and return a PatienceDiffResult model.
+    This version includes both line-level and token-level diffs.
+    
+    Args:
+        original: Original text
+        updated: Updated text
+        
+    Returns:
+        PatienceDiffResult containing LineDiff and TokenDiff elements
+    """
+    raw_diff = patience_diff(original, updated)
+    diffs = []
+    
+    for orig, upd in raw_diff:
+        if orig == upd:
+            # Unchanged lines
+            diffs.append(LineDiff(original=orig, updated=upd))
+        elif not orig or not upd:
+            # Simple addition or deletion
+            diffs.append(LineDiff(original=orig, updated=upd))
+        else:
+            # Changed line - compute token level diffs
+            token_diffs = compute_token_diffs(orig, upd)
+            diffs.extend(token_diffs)
+    
+    return PatienceDiffResult(diffs=diffs)

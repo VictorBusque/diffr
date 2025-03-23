@@ -1,69 +1,87 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import List, Union, Literal
 
+# ANSI color codes
+class Colors:
+    RED = "\033[91m"        # Deletion color
+    GREEN = "\033[92m"      # Addition color
+    BRIGHT_RED = "\033[31;1m"   # Highlighted deletion
+    BRIGHT_GREEN = "\033[32;1m"  # Highlighted addition
+    RESET = "\033[0m"       # Reset to default color
 
-class WordDiff(BaseModel):
-    word: str
-    added: bool
-    removed: bool
+class DiffInput(BaseModel):
+    """
+    Input model for the diff algorithm.
+    """
+    original: str
+    updated: str
 
+class DiffElement(BaseModel):
+    """
+    Base class for diff elements.
+    """
+    type: str
+
+class LineDiff(DiffElement):
+    """
+    Represents a line-level diff.
+    For unchanged lines, both original and updated contain the same text.
+    For insertions or deletions, one side will be empty.
+    """
+    type: Literal['line'] = 'line'
+    original: str
+    updated: str
+    
     def __str__(self) -> str:
-        """Convert the word diff to a string representation.
-
-        Returns:
-            str: str: The string representation of the word diff.
-        """
-        if self.added:
-            return f"\033[92m{self.word}\033[0m"  # Green for added words
-        elif self.removed:
-            return f"\033[91m{self.word}\033[0m"  # Red for removed words
+        if self.original == self.updated:
+            return self.original
+        elif not self.original:
+            return f"{Colors.GREEN}+ {self.updated}{Colors.RESET}"
+        elif not self.updated:
+            return f"{Colors.RED}- {self.original}{Colors.RESET}"
         else:
-            return self.word
+            return f"{Colors.RED}- {self.original}{Colors.RESET}\n{Colors.GREEN}+ {self.updated}{Colors.RESET}"
 
-
-class LineDiff(BaseModel):
-    line_number: int
-    content: str
-    added: bool
-    removed: bool
-    word_diffs: list[WordDiff]
-
+class TokenDiff(DiffElement):
+    """
+    Represents a token-level diff.
+    The operation indicates whether the token was inserted, deleted, or is equal.
+    """
+    type: Literal['token'] = 'token'
+    operation: Literal['insert', 'delete', 'equal']
+    token: str
+    
     def __str__(self) -> str:
-        """Convert the line diff to a string representation.
+        if self.operation == 'equal':
+            return self.token
+        elif self.operation == 'insert':
+            return f"{Colors.BRIGHT_GREEN}{self.token}{Colors.RESET}"
+        else:  # delete
+            return f"{Colors.BRIGHT_RED}{self.token}{Colors.RESET}"
 
-        Returns:
-            str: str: The string representation of the line diff.
-        """
-        word_diffs_str = " ".join(str(word_diff) for word_diff in self.word_diffs)
-        if self.added:
-            return f"\033[92m{self.line_number}: {word_diffs_str}\033[0m"  # Green for added lines
-        elif self.removed:
-            return f"\033[91m{self.line_number}: {word_diffs_str}\033[0m"  # Red for removed lines
-        else:
-            return f"{self.line_number}: {word_diffs_str}"
-
-
-class BlockDiff(BaseModel):
-    block_number: int
-    lines: list[LineDiff]
-
+class PatienceDiffResult(BaseModel):
+    """
+    The overall diff result.
+    It contains a list of diff elements, which can be either line-level or token-level differences.
+    """
+    diffs: List[Union[LineDiff, TokenDiff]]
+    
     def __str__(self) -> str:
-        """Convert the block diff to a string representation.
-
-        Returns:
-            str: str: The string representation of the block diff.
-        """
-        lines_str = "\n".join(str(line) for line in self.lines)
-        return f"Block {self.block_number}:\n{lines_str}"
-
-
-class FullDiff(BaseModel):
-    blocks: list[BlockDiff]
-
-    def __str__(self) -> str:
-        """Convert the block diff to a string representation.
-
-        Returns:
-            str: str: The string representation of the block diff.
-        """
-        blocks_str = "\n\n".join(str(block) for block in self.blocks)
-        return f"Full Diff:\n{blocks_str}"
+        result = []
+        current_line = ""
+        
+        for diff in self.diffs:
+            if diff.type == 'line':
+                # If we have a current line with tokens, add it to result first
+                if current_line:
+                    result.append(current_line)
+                    current_line = ""
+                result.append(str(diff))
+            else:  # Token diff
+                current_line += str(diff)
+                
+        # Don't forget to add the last line if it contains tokens
+        if current_line:
+            result.append(current_line)
+            
+        return "\n".join(result)
