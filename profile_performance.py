@@ -77,7 +77,7 @@ EXPECTED_DIFF_1 = [('equal', 'result'), ('equal', '='), ('equal', 'process_data'
 from diffr.algorithms.myers_cy import diff_line as diff_line_cy  # noqa: E402
 from diffr.algorithms.myers_cy import tokenize as tokenize_cy  # noqa: E402
 
-RUNS = 1000
+RUNS = 10000
 
 def run_test(func: Callable, code_old: str, code_new: str):
     profiled_lambda = profile_performance(runs=RUNS)(func)
