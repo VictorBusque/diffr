@@ -4,15 +4,54 @@ import re
 from libc.stdlib cimport malloc, free
 
 
-compiled_re = re.compile(r"\w+|[^\w\s]", re.UNICODE)
+# cython: language_level=3
 
+from cpython.unicode cimport (
+    PyUnicode_READ, PyUnicode_KIND, PyUnicode_DATA,
+    Py_UNICODE_ISALNUM, Py_UNICODE_ISSPACE
+)
+cimport cython
 
-cpdef list[str] tokenize(text: str):
-    tokens = compiled_re.findall(text, re.UNICODE)
+cpdef list tokenize(str text):
+    """
+    Tokenizes the given text into a list of tokens where each token is either
+    a contiguous sequence of word characters (letters, digits, underscore)
+    or a single non-whitespace, non-word character.
+    
+    This implementation replicates the behavior of:
+        re.compile(r"\w+|[^\w\s]", re.UNICODE).findall(text)
+    """
+    cdef list tokens = []
+    cdef Py_ssize_t i = 0, start, n = len(text)
+    cdef int kind = PyUnicode_KIND(text)
+    cdef void *data = PyUnicode_DATA(text)
+    cdef Py_UCS4 ch
+
+    while i < n:
+        ch = PyUnicode_READ(kind, data, i)
+        # Skip whitespace characters.
+        if Py_UNICODE_ISSPACE(ch):
+            i += 1
+        # If the character is a word character (alphanumeric) or underscore,
+        # collect a full token.
+        elif Py_UNICODE_ISALNUM(ch) or ch == 95:  # 95 is the ASCII code for '_'
+            start = i
+            while i < n:
+                ch = PyUnicode_READ(kind, data, i)
+                if not (Py_UNICODE_ISALNUM(ch) or ch == 95):
+                    break
+                i += 1
+            tokens.append(text[start:i])
+        else:
+            # For punctuation (or any other non-word, non-whitespace character),
+            # add the single character as a token.
+            tokens.append(text[i:i+1])
+            i += 1
     return tokens
 
 
-cpdef list diff_line(str original, str updated):
+
+cpdef list[tuple[str, str]] diff_line(str original, str updated):
     cdef list[str] words1 = tokenize(original) if original else []
     cdef list[str] words2 = tokenize(updated) if updated else []
     
@@ -66,7 +105,7 @@ cpdef list diff_line(str original, str updated):
         V = current_V
 
 
-cpdef list _backtrack(list words1, list words2, list trace):
+cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):
     cdef list script = []
     cdef Py_ssize_t x = len(words1)
     cdef Py_ssize_t y = len(words2)

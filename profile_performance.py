@@ -1,7 +1,7 @@
 import functools
 import logging
 import statistics
-import time
+from time import perf_counter
 from collections.abc import Callable
 from typing import Any
 import json
@@ -26,9 +26,9 @@ def profile_performance(runs: int = 1, show_stats: bool = True):
 
             result = None
             for _ in range(runs):
-                start_time = time.time()
+                start_time = perf_counter()
                 result = func(*args, **kwargs)
-                end_time = time.time()
+                end_time = perf_counter()
                 wrapper.execution_times.append(end_time - start_time)
 
             if show_stats and runs > 1:
@@ -55,56 +55,59 @@ def profile_performance(runs: int = 1, show_stats: bool = True):
 CODE_OLD = 'result = process_data(user_id=123, data=fetch_data("https://api.example.com/data"), retries=3, timeout=30, verbose=True)'
 CODE_NEW = 'result = process_data(user_id=123, data=fetch_data("https://api.example.com/archived"), retries=5, timeout=20, verbose=False)'
 
-from diffr.algorithms.myers import diff_line  # noqa: E402
 from diffr.algorithms.myers_cy import diff_line as diff_line_cy  # noqa: E402
+from diffr.algorithms.myers_cy import tokenize as tokenize_cy  # noqa: E402
 
-# Example of direct use with a lambda
-if __name__ == "__main__":
-    RUNS = 100000
-    logging.basicConfig(level=logging.INFO)
+RUNS = 100000
 
-    def diff_func(old: str, new: str) -> str:  # noqa: D103
-        diff = diff_line(old, new)
-        return diff
-
-    def diff_func_cy(old: str, new: str) -> str:
-        diff = diff_line_cy(old, new)
-        return diff
-
+def run_test(func: Callable, code_old: str, code_new: str):
+    profiled_lambda = profile_performance(runs=RUNS)(func)
+    
     try:
-        profiled_lambda = profile_performance(runs=RUNS)(diff_func)
-        diff = profiled_lambda(CODE_OLD, CODE_NEW)
-
+        result = profiled_lambda(code_old, code_new)
         # Native performance
-        total_lines = len(CODE_OLD.split("\n")) + len(CODE_NEW.split("\n"))
+        total_lines_old = len(CODE_OLD.split("\n"))
+        total_lines_new = len(CODE_NEW.split("\n"))
+        total_lines = total_lines_old + total_lines_new
         avg_time = statistics.mean(profiled_lambda.execution_times)
         lines_per_second = total_lines / avg_time
 
         logging.info("Lines old: %d", len(CODE_OLD.split("\n")))
         logging.info("Lines new: %d", len(CODE_NEW.split("\n")))
         logging.info("Lines per second: %.2f", lines_per_second)
+        return avg_time, result
     except Exception as e:
-        logging.error("Can't run the native implementation: %s", e)
+        logging.error("Can't run the implementation: %s", e)
         raise
 
-    try:
-        profiled_lambda_cy = profile_performance(runs=RUNS)(diff_func_cy)
-        diff_cy = profiled_lambda_cy(CODE_OLD, CODE_NEW)
-        # Cython performance
-        total_lines = len(CODE_OLD.split("\n")) + len(CODE_NEW.split("\n"))
-        avg_time = statistics.mean(profiled_lambda_cy.execution_times)
-        lines_per_second = total_lines / avg_time
+EXPECTED_TOKENS = [
+    'result', '=', 'process_data', '(', 'user_id', '=', '123', ',', 'data', '=', 'fetch_data', '(', '"', 'https', ':', '/' , '/', 'api', '.', 'example', '.', 'com', '/', 'data', '"', ')', ',', 'retries', '=', '3', ',', 'timeout', '=', '30', ',', 'verbose', '=', 'True', ')',
+    'result', '=', 'process_data', '(', 'user_id', '=', '123', ',', 'data', '=', 'fetch_data', '(', '"', 'https', ':', '/' , '/', 'api', '.', 'example', '.', 'com', '/', 'archived', '"', ')', ',', 'retries', '=', '5', ',', 'timeout', '=', '20', ',', 'verbose', '=', 'False', ')'
+]
 
-        logging.info("Lines old: %d", len(CODE_OLD.split("\n")))
-        logging.info("Lines new: %d", len(CODE_NEW.split("\n")))
-        logging.info("Lines per second (Cython): %.2f", lines_per_second)
-    except Exception as e:
-        logging.error("Can't run the Cython implementation: %s", e)
-        raise
+EXPECTED_DIFF = [('equal', 'result'), ('equal', '='), ('equal', 'process_data'), ('equal', '('), ('equal', 'user_id'), ('equal', '='), ('equal', '123'), ('equal', ','), ('equal', 'data'), ('equal', '='), ('equal', 'fetch_data'), ('equal', '('), ('equal', '"'), ('equal', 'https'), ('equal', ':'), ('equal', '/'), ('equal', '/'), ('equal', 'api'), ('equal', '.'), ('equal', 'example'), ('equal', '.'), ('equal', 'com'), ('equal', '/'), ('delete', 'data'), ('insert', 'archived'), ('equal', '"'), ('equal', ')'), ('equal', ','), ('equal', 'retries'), ('equal', '='), ('delete', '3'), ('insert', '5'), ('equal', ','), ('equal', 'timeout'), ('equal', '='), ('delete', '30'), ('insert', '20'), ('equal', ','), ('equal', 'verbose'), ('equal', '='), ('delete', 'True'), ('insert', 'False'), ('equal', ')')]
 
-    logging.info(
-        "Speedup: %.2fx",
-        statistics.mean(profiled_lambda.execution_times) / statistics.mean(profiled_lambda_cy.execution_times),
-    )
+# Example of direct use with a lambda
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
 
-    print(diff == diff_cy)
+    def tokenize_func_cy(old: str, new: str) -> list[str]:
+        tokens1 = tokenize_cy(old)
+        tokens2 = tokenize_cy(new)
+        return tokens1 + tokens2
+
+
+    def diff_func_cy(old: str, new: str) -> str:
+        diff = diff_line_cy(old, new)
+        return diff
+    
+    tokenize_cy_time, tokens_cy = run_test(tokenize_func_cy, CODE_OLD, CODE_NEW)
+
+    logging.info("Tokenize time: %.6f", tokenize_cy_time)
+    logging.info("Tokens match: %s", "✅" if tokens_cy == EXPECTED_TOKENS else "❌")
+
+    diff_cy_time, diff_cy = run_test(diff_func_cy, CODE_OLD, CODE_NEW)
+
+    logging.info("Diff time: %.6f", diff_cy_time)
+    logging.info("Matches expected: %s", "✅" if diff_cy == EXPECTED_DIFF else "❌")
+    
