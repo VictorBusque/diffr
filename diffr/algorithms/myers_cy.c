@@ -3,6 +3,7 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
+        "depends": [],
         "extra_compile_args": [
             "-O3"
         ],
@@ -1234,6 +1235,8 @@ static CYTHON_INLINE float __PYX_NAN() {
 #define __PYX_HAVE__diffr__algorithms__myers_cy
 #define __PYX_HAVE_API__diffr__algorithms__myers_cy
 /* Early includes */
+#include <string.h>
+#include <stdlib.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -1778,69 +1781,6 @@ static CYTHON_INLINE int __Pyx_ListComp_Append(PyObject* list, PyObject* x) {
 #define __Pyx_ListComp_Append(L,x) PyList_Append(L,x)
 #endif
 
-/* PyDictContains.proto */
-static CYTHON_INLINE int __Pyx_PyDict_ContainsTF(PyObject* item, PyObject* dict, int eq) {
-    int result = PyDict_Contains(dict, item);
-    return unlikely(result < 0) ? result : (result == (eq == Py_EQ));
-}
-
-/* DictGetItem.proto */
-#if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
-static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key);
-#define __Pyx_PyObject_Dict_GetItem(obj, name)\
-    (likely(PyDict_CheckExact(obj)) ?\
-     __Pyx_PyDict_GetItem(obj, name) : PyObject_GetItem(obj, name))
-#else
-#define __Pyx_PyDict_GetItem(d, key) PyObject_GetItem(d, key)
-#define __Pyx_PyObject_Dict_GetItem(obj, name)  PyObject_GetItem(obj, name)
-#endif
-
-/* dict_getitem_default.proto */
-static PyObject* __Pyx_PyDict_GetItemDefault(PyObject* d, PyObject* key, PyObject* default_value);
-
-/* PyObjectCall.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
-#else
-#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
-#endif
-
-/* UnpackUnboundCMethod.proto */
-typedef struct {
-    PyObject *type;
-    PyObject **method_name;
-    PyCFunction func;
-    PyObject *method;
-    int flag;
-} __Pyx_CachedCFunction;
-
-/* CallUnboundCMethod1.proto */
-static PyObject* __Pyx__CallUnboundCMethod1(__Pyx_CachedCFunction* cfunc, PyObject* self, PyObject* arg);
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_CallUnboundCMethod1(__Pyx_CachedCFunction* cfunc, PyObject* self, PyObject* arg);
-#else
-#define __Pyx_CallUnboundCMethod1(cfunc, self, arg)  __Pyx__CallUnboundCMethod1(cfunc, self, arg)
-#endif
-
-/* CallUnboundCMethod2.proto */
-static PyObject* __Pyx__CallUnboundCMethod2(__Pyx_CachedCFunction* cfunc, PyObject* self, PyObject* arg1, PyObject* arg2);
-#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030600B1
-static CYTHON_INLINE PyObject *__Pyx_CallUnboundCMethod2(__Pyx_CachedCFunction *cfunc, PyObject *self, PyObject *arg1, PyObject *arg2);
-#else
-#define __Pyx_CallUnboundCMethod2(cfunc, self, arg1, arg2)  __Pyx__CallUnboundCMethod2(cfunc, self, arg1, arg2)
-#endif
-
-/* PyIntBinop.proto */
-#if !CYTHON_COMPILING_IN_PYPY
-static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check);
-#else
-#define __Pyx_PyInt_AddObjC(op1, op2, intval, inplace, zerodivision_check)\
-    (inplace ? PyNumber_InPlaceAdd(op1, op2) : PyNumber_Add(op1, op2))
-#endif
-
-/* RaiseUnexpectedTypeError.proto */
-static int __Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj);
-
 /* IncludeStructmemberH.proto */
 #include <structmember.h>
 
@@ -2096,14 +2036,22 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* #### Code section: module_declarations ### */
 
+/* Module declarations from "libc.string" */
+
+/* Module declarations from "libc.stdlib" */
+
 /* Module declarations from "cython" */
+
+/* Module declarations from "cpython.pycapsule" */
 
 /* Module declarations from "diffr.algorithms.myers_cy" */
 static int __pyx_f_5diffr_10algorithms_8myers_cy_is_ascii_space(int); /*proto*/
 static int __pyx_f_5diffr_10algorithms_8myers_cy_is_alnum_or_underscore(int); /*proto*/
+static int __pyx_f_5diffr_10algorithms_8myers_cy_get_insertion(int *, int, int, Py_ssize_t); /*proto*/
+static int __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(int *, int, int, Py_ssize_t); /*proto*/
 static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_tokenize(PyObject *, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
-static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy__backtrack(PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy__backtrack_fast(PyObject *, PyObject *, PyObject *, int, Py_ssize_t); /*proto*/
 /* #### Code section: typeinfo ### */
 /* #### Code section: before_global_var ### */
 #define __Pyx_MODULE_NAME "diffr.algorithms.myers_cy"
@@ -2112,26 +2060,23 @@ int __pyx_module_is_main_diffr__algorithms__myers_cy = 0;
 
 /* Implementation of "diffr.algorithms.myers_cy" */
 /* #### Code section: global_var ### */
+static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_range;
 /* #### Code section: string_decls ### */
-static const char __pyx_k__7[] = "?";
-static const char __pyx_k_get[] = "get";
+static const char __pyx_k__5[] = "?";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_text[] = "text";
 static const char __pyx_k_equal[] = "equal";
 static const char __pyx_k_range[] = "range";
-static const char __pyx_k_trace[] = "trace";
 static const char __pyx_k_delete[] = "delete";
 static const char __pyx_k_insert[] = "insert";
-static const char __pyx_k_words1[] = "words1";
-static const char __pyx_k_words2[] = "words2";
 static const char __pyx_k_updated[] = "updated";
 static const char __pyx_k_original[] = "original";
 static const char __pyx_k_tokenize[] = "tokenize";
-static const char __pyx_k_backtrack[] = "_backtrack";
 static const char __pyx_k_diff_line[] = "diff_line";
+static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_is_coroutine[] = "_is_coroutine";
 static const char __pyx_k_asyncio_coroutines[] = "asyncio.coroutines";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
@@ -2140,8 +2085,6 @@ static const char __pyx_k_diffr_algorithms_myers_cy_pyx[] = "diffr/algorithms/my
 /* #### Code section: decls ### */
 static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_tokenize(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_text); /* proto */
 static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_2diff_line(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_original, PyObject *__pyx_v_updated); /* proto */
-static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_4_backtrack(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_words1, PyObject *__pyx_v_words2, PyObject *__pyx_v_trace); /* proto */
-static __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_get = {0, 0, 0, 0, 0};
 /* #### Code section: late_includes ### */
 /* #### Code section: module_state ### */
 typedef struct {
@@ -2173,16 +2116,21 @@ typedef struct {
   #endif
   #if CYTHON_USE_MODULE_STATE
   #endif
-  PyObject *__pyx_n_s__7;
+  #if CYTHON_USE_MODULE_STATE
+  #endif
+  #if CYTHON_USE_MODULE_STATE
+  #endif
+  #if CYTHON_USE_MODULE_STATE
+  #endif
+  PyObject *__pyx_n_s_MemoryError;
+  PyObject *__pyx_n_s__5;
   PyObject *__pyx_n_s_asyncio_coroutines;
-  PyObject *__pyx_n_s_backtrack;
   PyObject *__pyx_n_s_cline_in_traceback;
   PyObject *__pyx_n_u_delete;
   PyObject *__pyx_n_s_diff_line;
   PyObject *__pyx_n_s_diffr_algorithms_myers_cy;
   PyObject *__pyx_kp_s_diffr_algorithms_myers_cy_pyx;
   PyObject *__pyx_n_u_equal;
-  PyObject *__pyx_n_s_get;
   PyObject *__pyx_n_u_insert;
   PyObject *__pyx_n_s_is_coroutine;
   PyObject *__pyx_n_s_main;
@@ -2192,19 +2140,11 @@ typedef struct {
   PyObject *__pyx_n_s_test;
   PyObject *__pyx_n_s_text;
   PyObject *__pyx_n_s_tokenize;
-  PyObject *__pyx_n_s_trace;
   PyObject *__pyx_n_s_updated;
-  PyObject *__pyx_n_s_words1;
-  PyObject *__pyx_n_s_words2;
-  PyObject *__pyx_int_0;
-  PyObject *__pyx_int_1;
-  PyObject *__pyx_int_neg_1;
   PyObject *__pyx_tuple_;
   PyObject *__pyx_tuple__3;
-  PyObject *__pyx_tuple__5;
   PyObject *__pyx_codeobj__2;
   PyObject *__pyx_codeobj__4;
-  PyObject *__pyx_codeobj__6;
 } __pyx_mstate;
 
 #if CYTHON_USE_MODULE_STATE
@@ -2247,16 +2187,15 @@ static int __pyx_m_clear(PyObject *m) {
   #ifdef __Pyx_FusedFunction_USED
   Py_CLEAR(clear_module_state->__pyx_FusedFunctionType);
   #endif
-  Py_CLEAR(clear_module_state->__pyx_n_s__7);
+  Py_CLEAR(clear_module_state->__pyx_n_s_MemoryError);
+  Py_CLEAR(clear_module_state->__pyx_n_s__5);
   Py_CLEAR(clear_module_state->__pyx_n_s_asyncio_coroutines);
-  Py_CLEAR(clear_module_state->__pyx_n_s_backtrack);
   Py_CLEAR(clear_module_state->__pyx_n_s_cline_in_traceback);
   Py_CLEAR(clear_module_state->__pyx_n_u_delete);
   Py_CLEAR(clear_module_state->__pyx_n_s_diff_line);
   Py_CLEAR(clear_module_state->__pyx_n_s_diffr_algorithms_myers_cy);
   Py_CLEAR(clear_module_state->__pyx_kp_s_diffr_algorithms_myers_cy_pyx);
   Py_CLEAR(clear_module_state->__pyx_n_u_equal);
-  Py_CLEAR(clear_module_state->__pyx_n_s_get);
   Py_CLEAR(clear_module_state->__pyx_n_u_insert);
   Py_CLEAR(clear_module_state->__pyx_n_s_is_coroutine);
   Py_CLEAR(clear_module_state->__pyx_n_s_main);
@@ -2266,19 +2205,11 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_test);
   Py_CLEAR(clear_module_state->__pyx_n_s_text);
   Py_CLEAR(clear_module_state->__pyx_n_s_tokenize);
-  Py_CLEAR(clear_module_state->__pyx_n_s_trace);
   Py_CLEAR(clear_module_state->__pyx_n_s_updated);
-  Py_CLEAR(clear_module_state->__pyx_n_s_words1);
-  Py_CLEAR(clear_module_state->__pyx_n_s_words2);
-  Py_CLEAR(clear_module_state->__pyx_int_0);
-  Py_CLEAR(clear_module_state->__pyx_int_1);
-  Py_CLEAR(clear_module_state->__pyx_int_neg_1);
   Py_CLEAR(clear_module_state->__pyx_tuple_);
   Py_CLEAR(clear_module_state->__pyx_tuple__3);
-  Py_CLEAR(clear_module_state->__pyx_tuple__5);
   Py_CLEAR(clear_module_state->__pyx_codeobj__2);
   Py_CLEAR(clear_module_state->__pyx_codeobj__4);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__6);
   return 0;
 }
 #endif
@@ -2299,16 +2230,15 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   #ifdef __Pyx_FusedFunction_USED
   Py_VISIT(traverse_module_state->__pyx_FusedFunctionType);
   #endif
-  Py_VISIT(traverse_module_state->__pyx_n_s__7);
+  Py_VISIT(traverse_module_state->__pyx_n_s_MemoryError);
+  Py_VISIT(traverse_module_state->__pyx_n_s__5);
   Py_VISIT(traverse_module_state->__pyx_n_s_asyncio_coroutines);
-  Py_VISIT(traverse_module_state->__pyx_n_s_backtrack);
   Py_VISIT(traverse_module_state->__pyx_n_s_cline_in_traceback);
   Py_VISIT(traverse_module_state->__pyx_n_u_delete);
   Py_VISIT(traverse_module_state->__pyx_n_s_diff_line);
   Py_VISIT(traverse_module_state->__pyx_n_s_diffr_algorithms_myers_cy);
   Py_VISIT(traverse_module_state->__pyx_kp_s_diffr_algorithms_myers_cy_pyx);
   Py_VISIT(traverse_module_state->__pyx_n_u_equal);
-  Py_VISIT(traverse_module_state->__pyx_n_s_get);
   Py_VISIT(traverse_module_state->__pyx_n_u_insert);
   Py_VISIT(traverse_module_state->__pyx_n_s_is_coroutine);
   Py_VISIT(traverse_module_state->__pyx_n_s_main);
@@ -2318,19 +2248,11 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_test);
   Py_VISIT(traverse_module_state->__pyx_n_s_text);
   Py_VISIT(traverse_module_state->__pyx_n_s_tokenize);
-  Py_VISIT(traverse_module_state->__pyx_n_s_trace);
   Py_VISIT(traverse_module_state->__pyx_n_s_updated);
-  Py_VISIT(traverse_module_state->__pyx_n_s_words1);
-  Py_VISIT(traverse_module_state->__pyx_n_s_words2);
-  Py_VISIT(traverse_module_state->__pyx_int_0);
-  Py_VISIT(traverse_module_state->__pyx_int_1);
-  Py_VISIT(traverse_module_state->__pyx_int_neg_1);
   Py_VISIT(traverse_module_state->__pyx_tuple_);
   Py_VISIT(traverse_module_state->__pyx_tuple__3);
-  Py_VISIT(traverse_module_state->__pyx_tuple__5);
   Py_VISIT(traverse_module_state->__pyx_codeobj__2);
   Py_VISIT(traverse_module_state->__pyx_codeobj__4);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__6);
   return 0;
 }
 #endif
@@ -2363,16 +2285,21 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #endif
 #if CYTHON_USE_MODULE_STATE
 #endif
-#define __pyx_n_s__7 __pyx_mstate_global->__pyx_n_s__7
+#if CYTHON_USE_MODULE_STATE
+#endif
+#if CYTHON_USE_MODULE_STATE
+#endif
+#if CYTHON_USE_MODULE_STATE
+#endif
+#define __pyx_n_s_MemoryError __pyx_mstate_global->__pyx_n_s_MemoryError
+#define __pyx_n_s__5 __pyx_mstate_global->__pyx_n_s__5
 #define __pyx_n_s_asyncio_coroutines __pyx_mstate_global->__pyx_n_s_asyncio_coroutines
-#define __pyx_n_s_backtrack __pyx_mstate_global->__pyx_n_s_backtrack
 #define __pyx_n_s_cline_in_traceback __pyx_mstate_global->__pyx_n_s_cline_in_traceback
 #define __pyx_n_u_delete __pyx_mstate_global->__pyx_n_u_delete
 #define __pyx_n_s_diff_line __pyx_mstate_global->__pyx_n_s_diff_line
 #define __pyx_n_s_diffr_algorithms_myers_cy __pyx_mstate_global->__pyx_n_s_diffr_algorithms_myers_cy
 #define __pyx_kp_s_diffr_algorithms_myers_cy_pyx __pyx_mstate_global->__pyx_kp_s_diffr_algorithms_myers_cy_pyx
 #define __pyx_n_u_equal __pyx_mstate_global->__pyx_n_u_equal
-#define __pyx_n_s_get __pyx_mstate_global->__pyx_n_s_get
 #define __pyx_n_u_insert __pyx_mstate_global->__pyx_n_u_insert
 #define __pyx_n_s_is_coroutine __pyx_mstate_global->__pyx_n_s_is_coroutine
 #define __pyx_n_s_main __pyx_mstate_global->__pyx_n_s_main
@@ -2382,84 +2309,54 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_test __pyx_mstate_global->__pyx_n_s_test
 #define __pyx_n_s_text __pyx_mstate_global->__pyx_n_s_text
 #define __pyx_n_s_tokenize __pyx_mstate_global->__pyx_n_s_tokenize
-#define __pyx_n_s_trace __pyx_mstate_global->__pyx_n_s_trace
 #define __pyx_n_s_updated __pyx_mstate_global->__pyx_n_s_updated
-#define __pyx_n_s_words1 __pyx_mstate_global->__pyx_n_s_words1
-#define __pyx_n_s_words2 __pyx_mstate_global->__pyx_n_s_words2
-#define __pyx_int_0 __pyx_mstate_global->__pyx_int_0
-#define __pyx_int_1 __pyx_mstate_global->__pyx_int_1
-#define __pyx_int_neg_1 __pyx_mstate_global->__pyx_int_neg_1
 #define __pyx_tuple_ __pyx_mstate_global->__pyx_tuple_
 #define __pyx_tuple__3 __pyx_mstate_global->__pyx_tuple__3
-#define __pyx_tuple__5 __pyx_mstate_global->__pyx_tuple__5
 #define __pyx_codeobj__2 __pyx_mstate_global->__pyx_codeobj__2
 #define __pyx_codeobj__4 __pyx_mstate_global->__pyx_codeobj__4
-#define __pyx_codeobj__6 __pyx_mstate_global->__pyx_codeobj__6
 /* #### Code section: module_code ### */
 
-/* "diffr/algorithms/myers_cy.pyx":7
- * 
+/* "diffr/algorithms/myers_cy.pyx":10
+ * # Helpers for character classification remain unchanged.
  * @cython.inline
- * cdef bint is_ascii_space(int ch):             # <<<<<<<<<<<<<<
- *     """
- *     Check if ch is one of [tab, newline, vertical-tab, form-feed, carriage-return, space].
+ * cdef bint is_ascii_space(int ch) nogil:             # <<<<<<<<<<<<<<
+ *     return ch == 32 or (9 <= ch <= 13)
+ * 
  */
 
 static int __pyx_f_5diffr_10algorithms_8myers_cy_is_ascii_space(int __pyx_v_ch) {
   int __pyx_r;
+  int __pyx_t_1;
+  int __pyx_t_2;
 
-  /* "diffr/algorithms/myers_cy.pyx":12
- *     Extend if you want to handle other Unicode whitespace.
- *     """
- *     if ch in (9, 10, 11, 12, 13, 32):             # <<<<<<<<<<<<<<
- *         return True
- *     return False
- */
-  switch (__pyx_v_ch) {
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-    case 32:
-
-    /* "diffr/algorithms/myers_cy.pyx":13
- *     """
- *     if ch in (9, 10, 11, 12, 13, 32):
- *         return True             # <<<<<<<<<<<<<<
- *     return False
- * 
- */
-    __pyx_r = 1;
-    goto __pyx_L0;
-
-    /* "diffr/algorithms/myers_cy.pyx":12
- *     Extend if you want to handle other Unicode whitespace.
- *     """
- *     if ch in (9, 10, 11, 12, 13, 32):             # <<<<<<<<<<<<<<
- *         return True
- *     return False
- */
-    break;
-    default: break;
-  }
-
-  /* "diffr/algorithms/myers_cy.pyx":14
- *     if ch in (9, 10, 11, 12, 13, 32):
- *         return True
- *     return False             # <<<<<<<<<<<<<<
+  /* "diffr/algorithms/myers_cy.pyx":11
+ * @cython.inline
+ * cdef bint is_ascii_space(int ch) nogil:
+ *     return ch == 32 or (9 <= ch <= 13)             # <<<<<<<<<<<<<<
  * 
  * @cython.inline
  */
-  __pyx_r = 0;
+  __pyx_t_2 = (__pyx_v_ch == 32);
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_1 = __pyx_t_2;
+    goto __pyx_L3_bool_binop_done;
+  }
+  __pyx_t_2 = (9 <= __pyx_v_ch);
+  if (__pyx_t_2) {
+    __pyx_t_2 = (__pyx_v_ch <= 13);
+  }
+  __pyx_t_1 = __pyx_t_2;
+  __pyx_L3_bool_binop_done:;
+  __pyx_r = __pyx_t_1;
   goto __pyx_L0;
 
-  /* "diffr/algorithms/myers_cy.pyx":7
- * 
+  /* "diffr/algorithms/myers_cy.pyx":10
+ * # Helpers for character classification remain unchanged.
  * @cython.inline
- * cdef bint is_ascii_space(int ch):             # <<<<<<<<<<<<<<
- *     """
- *     Check if ch is one of [tab, newline, vertical-tab, form-feed, carriage-return, space].
+ * cdef bint is_ascii_space(int ch) nogil:             # <<<<<<<<<<<<<<
+ *     return ch == 32 or (9 <= ch <= 13)
+ * 
  */
 
   /* function exit code */
@@ -2467,159 +2364,65 @@ static int __pyx_f_5diffr_10algorithms_8myers_cy_is_ascii_space(int __pyx_v_ch) 
   return __pyx_r;
 }
 
-/* "diffr/algorithms/myers_cy.pyx":17
+/* "diffr/algorithms/myers_cy.pyx":14
  * 
  * @cython.inline
- * cdef bint is_alnum_or_underscore(int ch):             # <<<<<<<<<<<<<<
- *     """
- *     Check for ASCII letters [a-zA-Z], digits [0-9], or underscore '_'.
+ * cdef bint is_alnum_or_underscore(int ch) nogil:             # <<<<<<<<<<<<<<
+ *     return (48 <= ch <= 57) or (65 <= ch <= 90) or (97 <= ch <= 122) or (ch == 95)
+ * 
  */
 
 static int __pyx_f_5diffr_10algorithms_8myers_cy_is_alnum_or_underscore(int __pyx_v_ch) {
   int __pyx_r;
   int __pyx_t_1;
+  int __pyx_t_2;
 
-  /* "diffr/algorithms/myers_cy.pyx":23
- *     """
- *     # uppercase letters [A-Z]
- *     if 65 <= ch <= 90:             # <<<<<<<<<<<<<<
- *         return True
- *     # lowercase letters [a-z]
- */
-  __pyx_t_1 = (65 <= __pyx_v_ch);
-  if (__pyx_t_1) {
-    __pyx_t_1 = (__pyx_v_ch <= 90);
-  }
-  if (__pyx_t_1) {
-
-    /* "diffr/algorithms/myers_cy.pyx":24
- *     # uppercase letters [A-Z]
- *     if 65 <= ch <= 90:
- *         return True             # <<<<<<<<<<<<<<
- *     # lowercase letters [a-z]
- *     if 97 <= ch <= 122:
- */
-    __pyx_r = 1;
-    goto __pyx_L0;
-
-    /* "diffr/algorithms/myers_cy.pyx":23
- *     """
- *     # uppercase letters [A-Z]
- *     if 65 <= ch <= 90:             # <<<<<<<<<<<<<<
- *         return True
- *     # lowercase letters [a-z]
- */
-  }
-
-  /* "diffr/algorithms/myers_cy.pyx":26
- *         return True
- *     # lowercase letters [a-z]
- *     if 97 <= ch <= 122:             # <<<<<<<<<<<<<<
- *         return True
- *     # digits [0-9]
- */
-  __pyx_t_1 = (97 <= __pyx_v_ch);
-  if (__pyx_t_1) {
-    __pyx_t_1 = (__pyx_v_ch <= 0x7A);
-  }
-  if (__pyx_t_1) {
-
-    /* "diffr/algorithms/myers_cy.pyx":27
- *     # lowercase letters [a-z]
- *     if 97 <= ch <= 122:
- *         return True             # <<<<<<<<<<<<<<
- *     # digits [0-9]
- *     if 48 <= ch <= 57:
- */
-    __pyx_r = 1;
-    goto __pyx_L0;
-
-    /* "diffr/algorithms/myers_cy.pyx":26
- *         return True
- *     # lowercase letters [a-z]
- *     if 97 <= ch <= 122:             # <<<<<<<<<<<<<<
- *         return True
- *     # digits [0-9]
- */
-  }
-
-  /* "diffr/algorithms/myers_cy.pyx":29
- *         return True
- *     # digits [0-9]
- *     if 48 <= ch <= 57:             # <<<<<<<<<<<<<<
- *         return True
- *     # underscore
- */
-  __pyx_t_1 = (48 <= __pyx_v_ch);
-  if (__pyx_t_1) {
-    __pyx_t_1 = (__pyx_v_ch <= 57);
-  }
-  if (__pyx_t_1) {
-
-    /* "diffr/algorithms/myers_cy.pyx":30
- *     # digits [0-9]
- *     if 48 <= ch <= 57:
- *         return True             # <<<<<<<<<<<<<<
- *     # underscore
- *     if ch == 95:
- */
-    __pyx_r = 1;
-    goto __pyx_L0;
-
-    /* "diffr/algorithms/myers_cy.pyx":29
- *         return True
- *     # digits [0-9]
- *     if 48 <= ch <= 57:             # <<<<<<<<<<<<<<
- *         return True
- *     # underscore
- */
-  }
-
-  /* "diffr/algorithms/myers_cy.pyx":32
- *         return True
- *     # underscore
- *     if ch == 95:             # <<<<<<<<<<<<<<
- *         return True
- *     return False
- */
-  __pyx_t_1 = (__pyx_v_ch == 95);
-  if (__pyx_t_1) {
-
-    /* "diffr/algorithms/myers_cy.pyx":33
- *     # underscore
- *     if ch == 95:
- *         return True             # <<<<<<<<<<<<<<
- *     return False
+  /* "diffr/algorithms/myers_cy.pyx":15
+ * @cython.inline
+ * cdef bint is_alnum_or_underscore(int ch) nogil:
+ *     return (48 <= ch <= 57) or (65 <= ch <= 90) or (97 <= ch <= 122) or (ch == 95)             # <<<<<<<<<<<<<<
  * 
+ * # Helper functions to mimic dict.get() behavior.
  */
-    __pyx_r = 1;
-    goto __pyx_L0;
-
-    /* "diffr/algorithms/myers_cy.pyx":32
- *         return True
- *     # underscore
- *     if ch == 95:             # <<<<<<<<<<<<<<
- *         return True
- *     return False
- */
+  __pyx_t_2 = (48 <= __pyx_v_ch);
+  if (__pyx_t_2) {
+    __pyx_t_2 = (__pyx_v_ch <= 57);
   }
-
-  /* "diffr/algorithms/myers_cy.pyx":34
- *     if ch == 95:
- *         return True
- *     return False             # <<<<<<<<<<<<<<
- * 
- * @cython.final
- */
-  __pyx_r = 0;
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_1 = __pyx_t_2;
+    goto __pyx_L3_bool_binop_done;
+  }
+  __pyx_t_2 = (65 <= __pyx_v_ch);
+  if (__pyx_t_2) {
+    __pyx_t_2 = (__pyx_v_ch <= 90);
+  }
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_1 = __pyx_t_2;
+    goto __pyx_L3_bool_binop_done;
+  }
+  __pyx_t_2 = (97 <= __pyx_v_ch);
+  if (__pyx_t_2) {
+    __pyx_t_2 = (__pyx_v_ch <= 0x7A);
+  }
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_1 = __pyx_t_2;
+    goto __pyx_L3_bool_binop_done;
+  }
+  __pyx_t_2 = (__pyx_v_ch == 95);
+  __pyx_t_1 = __pyx_t_2;
+  __pyx_L3_bool_binop_done:;
+  __pyx_r = __pyx_t_1;
   goto __pyx_L0;
 
-  /* "diffr/algorithms/myers_cy.pyx":17
+  /* "diffr/algorithms/myers_cy.pyx":14
  * 
  * @cython.inline
- * cdef bint is_alnum_or_underscore(int ch):             # <<<<<<<<<<<<<<
- *     """
- *     Check for ASCII letters [a-zA-Z], digits [0-9], or underscore '_'.
+ * cdef bint is_alnum_or_underscore(int ch) nogil:             # <<<<<<<<<<<<<<
+ *     return (48 <= ch <= 57) or (65 <= ch <= 90) or (97 <= ch <= 122) or (ch == 95)
+ * 
  */
 
   /* function exit code */
@@ -2627,12 +2430,178 @@ static int __pyx_f_5diffr_10algorithms_8myers_cy_is_alnum_or_underscore(int __py
   return __pyx_r;
 }
 
-/* "diffr/algorithms/myers_cy.pyx":37
+/* "diffr/algorithms/myers_cy.pyx":19
+ * # Helper functions to mimic dict.get() behavior.
+ * @cython.inline
+ * cdef int get_insertion(int* arr, int key, int offset, Py_ssize_t size) nogil:             # <<<<<<<<<<<<<<
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:
+ */
+
+static int __pyx_f_5diffr_10algorithms_8myers_cy_get_insertion(int *__pyx_v_arr, int __pyx_v_key, int __pyx_v_offset, Py_ssize_t __pyx_v_size) {
+  int __pyx_v_idx;
+  int __pyx_r;
+  int __pyx_t_1;
+  int __pyx_t_2;
+
+  /* "diffr/algorithms/myers_cy.pyx":20
+ * @cython.inline
+ * cdef int get_insertion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+ *     cdef int idx = key + offset             # <<<<<<<<<<<<<<
+ *     if idx < 0 or idx >= size:
+ *          return 0
+ */
+  __pyx_v_idx = (__pyx_v_key + __pyx_v_offset);
+
+  /* "diffr/algorithms/myers_cy.pyx":21
+ * cdef int get_insertion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:             # <<<<<<<<<<<<<<
+ *          return 0
+ *     return arr[idx]
+ */
+  __pyx_t_2 = (__pyx_v_idx < 0);
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_1 = __pyx_t_2;
+    goto __pyx_L4_bool_binop_done;
+  }
+  __pyx_t_2 = (__pyx_v_idx >= __pyx_v_size);
+  __pyx_t_1 = __pyx_t_2;
+  __pyx_L4_bool_binop_done:;
+  if (__pyx_t_1) {
+
+    /* "diffr/algorithms/myers_cy.pyx":22
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:
+ *          return 0             # <<<<<<<<<<<<<<
+ *     return arr[idx]
+ * 
+ */
+    __pyx_r = 0;
+    goto __pyx_L0;
+
+    /* "diffr/algorithms/myers_cy.pyx":21
+ * cdef int get_insertion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:             # <<<<<<<<<<<<<<
+ *          return 0
+ *     return arr[idx]
+ */
+  }
+
+  /* "diffr/algorithms/myers_cy.pyx":23
+ *     if idx < 0 or idx >= size:
+ *          return 0
+ *     return arr[idx]             # <<<<<<<<<<<<<<
+ * 
+ * @cython.inline
+ */
+  __pyx_r = (__pyx_v_arr[__pyx_v_idx]);
+  goto __pyx_L0;
+
+  /* "diffr/algorithms/myers_cy.pyx":19
+ * # Helper functions to mimic dict.get() behavior.
+ * @cython.inline
+ * cdef int get_insertion(int* arr, int key, int offset, Py_ssize_t size) nogil:             # <<<<<<<<<<<<<<
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:
+ */
+
+  /* function exit code */
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "diffr/algorithms/myers_cy.pyx":26
+ * 
+ * @cython.inline
+ * cdef int get_deletion(int* arr, int key, int offset, Py_ssize_t size) nogil:             # <<<<<<<<<<<<<<
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:
+ */
+
+static int __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(int *__pyx_v_arr, int __pyx_v_key, int __pyx_v_offset, Py_ssize_t __pyx_v_size) {
+  int __pyx_v_idx;
+  int __pyx_r;
+  int __pyx_t_1;
+  int __pyx_t_2;
+
+  /* "diffr/algorithms/myers_cy.pyx":27
+ * @cython.inline
+ * cdef int get_deletion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+ *     cdef int idx = key + offset             # <<<<<<<<<<<<<<
+ *     if idx < 0 or idx >= size:
+ *          return -1
+ */
+  __pyx_v_idx = (__pyx_v_key + __pyx_v_offset);
+
+  /* "diffr/algorithms/myers_cy.pyx":28
+ * cdef int get_deletion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:             # <<<<<<<<<<<<<<
+ *          return -1
+ *     return arr[idx]
+ */
+  __pyx_t_2 = (__pyx_v_idx < 0);
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_1 = __pyx_t_2;
+    goto __pyx_L4_bool_binop_done;
+  }
+  __pyx_t_2 = (__pyx_v_idx >= __pyx_v_size);
+  __pyx_t_1 = __pyx_t_2;
+  __pyx_L4_bool_binop_done:;
+  if (__pyx_t_1) {
+
+    /* "diffr/algorithms/myers_cy.pyx":29
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:
+ *          return -1             # <<<<<<<<<<<<<<
+ *     return arr[idx]
+ * 
+ */
+    __pyx_r = -1;
+    goto __pyx_L0;
+
+    /* "diffr/algorithms/myers_cy.pyx":28
+ * cdef int get_deletion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:             # <<<<<<<<<<<<<<
+ *          return -1
+ *     return arr[idx]
+ */
+  }
+
+  /* "diffr/algorithms/myers_cy.pyx":30
+ *     if idx < 0 or idx >= size:
+ *          return -1
+ *     return arr[idx]             # <<<<<<<<<<<<<<
+ * 
+ * @cython.final
+ */
+  __pyx_r = (__pyx_v_arr[__pyx_v_idx]);
+  goto __pyx_L0;
+
+  /* "diffr/algorithms/myers_cy.pyx":26
+ * 
+ * @cython.inline
+ * cdef int get_deletion(int* arr, int key, int offset, Py_ssize_t size) nogil:             # <<<<<<<<<<<<<<
+ *     cdef int idx = key + offset
+ *     if idx < 0 or idx >= size:
+ */
+
+  /* function exit code */
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "diffr/algorithms/myers_cy.pyx":33
  * 
  * @cython.final
  * cpdef list[str] tokenize(str text):             # <<<<<<<<<<<<<<
- *     """
- *     Tokenizes text into a list of tokens where each token is either a
+ *     cdef list tokens = []
+ *     cdef Py_ssize_t i = 0, n = len(text)
  */
 
 static PyObject *__pyx_pw_5diffr_10algorithms_8myers_cy_1tokenize(PyObject *__pyx_self, 
@@ -2646,8 +2615,8 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_tokenize(PyObject *__pyx_
   PyObject *__pyx_v_tokens = 0;
   Py_ssize_t __pyx_v_i;
   Py_ssize_t __pyx_v_n;
-  int __pyx_v_ch;
   Py_ssize_t __pyx_v_start;
+  int __pyx_v_ch;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -2661,36 +2630,36 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_tokenize(PyObject *__pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("tokenize", 1);
 
-  /* "diffr/algorithms/myers_cy.pyx":43
- *     or a single non-whitespace, non-word character.
- *     """
+  /* "diffr/algorithms/myers_cy.pyx":34
+ * @cython.final
+ * cpdef list[str] tokenize(str text):
  *     cdef list tokens = []             # <<<<<<<<<<<<<<
  *     cdef Py_ssize_t i = 0, n = len(text)
- *     cdef int ch
+ *     cdef Py_ssize_t start
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_tokens = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "diffr/algorithms/myers_cy.pyx":44
- *     """
+  /* "diffr/algorithms/myers_cy.pyx":35
+ * cpdef list[str] tokenize(str text):
  *     cdef list tokens = []
  *     cdef Py_ssize_t i = 0, n = len(text)             # <<<<<<<<<<<<<<
- *     cdef int ch
  *     cdef Py_ssize_t start
+ *     cdef int ch
  */
   __pyx_v_i = 0;
   if (unlikely(__pyx_v_text == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 44, __pyx_L1_error)
+    __PYX_ERR(0, 35, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_text); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_text); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 35, __pyx_L1_error)
   __pyx_v_n = __pyx_t_2;
 
-  /* "diffr/algorithms/myers_cy.pyx":48
+  /* "diffr/algorithms/myers_cy.pyx":38
  *     cdef Py_ssize_t start
- * 
+ *     cdef int ch
  *     while i < n:             # <<<<<<<<<<<<<<
  *         ch = ord(text[i])
  *         if is_ascii_space(ch):
@@ -2699,66 +2668,74 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_tokenize(PyObject *__pyx_
     __pyx_t_3 = (__pyx_v_i < __pyx_v_n);
     if (!__pyx_t_3) break;
 
-    /* "diffr/algorithms/myers_cy.pyx":49
- * 
+    /* "diffr/algorithms/myers_cy.pyx":39
+ *     cdef int ch
  *     while i < n:
  *         ch = ord(text[i])             # <<<<<<<<<<<<<<
  *         if is_ascii_space(ch):
  *             i += 1
  */
-    __pyx_t_4 = __Pyx_GetItemInt_Unicode(__pyx_v_text, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(__pyx_t_4 == (Py_UCS4)-1)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetItemInt_Unicode(__pyx_v_text, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(__pyx_t_4 == (Py_UCS4)-1)) __PYX_ERR(0, 39, __pyx_L1_error)
     __pyx_v_ch = __Pyx_long_cast(__pyx_t_4);
 
-    /* "diffr/algorithms/myers_cy.pyx":50
+    /* "diffr/algorithms/myers_cy.pyx":40
  *     while i < n:
  *         ch = ord(text[i])
  *         if is_ascii_space(ch):             # <<<<<<<<<<<<<<
  *             i += 1
- *         elif is_alnum_or_underscore(ch):
+ *             continue
  */
-    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_is_ascii_space(__pyx_v_ch); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_is_ascii_space(__pyx_v_ch); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L1_error)
     if (__pyx_t_3) {
 
-      /* "diffr/algorithms/myers_cy.pyx":51
+      /* "diffr/algorithms/myers_cy.pyx":41
  *         ch = ord(text[i])
  *         if is_ascii_space(ch):
  *             i += 1             # <<<<<<<<<<<<<<
- *         elif is_alnum_or_underscore(ch):
- *             start = i
+ *             continue
+ *         if is_alnum_or_underscore(ch):
  */
       __pyx_v_i = (__pyx_v_i + 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":50
+      /* "diffr/algorithms/myers_cy.pyx":42
+ *         if is_ascii_space(ch):
+ *             i += 1
+ *             continue             # <<<<<<<<<<<<<<
+ *         if is_alnum_or_underscore(ch):
+ *             start = i
+ */
+      goto __pyx_L3_continue;
+
+      /* "diffr/algorithms/myers_cy.pyx":40
  *     while i < n:
  *         ch = ord(text[i])
  *         if is_ascii_space(ch):             # <<<<<<<<<<<<<<
  *             i += 1
- *         elif is_alnum_or_underscore(ch):
+ *             continue
  */
-      goto __pyx_L5;
     }
 
-    /* "diffr/algorithms/myers_cy.pyx":52
- *         if is_ascii_space(ch):
+    /* "diffr/algorithms/myers_cy.pyx":43
  *             i += 1
- *         elif is_alnum_or_underscore(ch):             # <<<<<<<<<<<<<<
+ *             continue
+ *         if is_alnum_or_underscore(ch):             # <<<<<<<<<<<<<<
  *             start = i
  *             while i < n:
  */
-    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_is_alnum_or_underscore(__pyx_v_ch); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 52, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_is_alnum_or_underscore(__pyx_v_ch); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 43, __pyx_L1_error)
     if (__pyx_t_3) {
 
-      /* "diffr/algorithms/myers_cy.pyx":53
- *             i += 1
- *         elif is_alnum_or_underscore(ch):
+      /* "diffr/algorithms/myers_cy.pyx":44
+ *             continue
+ *         if is_alnum_or_underscore(ch):
  *             start = i             # <<<<<<<<<<<<<<
  *             while i < n:
  *                 ch = ord(text[i])
  */
       __pyx_v_start = __pyx_v_i;
 
-      /* "diffr/algorithms/myers_cy.pyx":54
- *         elif is_alnum_or_underscore(ch):
+      /* "diffr/algorithms/myers_cy.pyx":45
+ *         if is_alnum_or_underscore(ch):
  *             start = i
  *             while i < n:             # <<<<<<<<<<<<<<
  *                 ch = ord(text[i])
@@ -2768,37 +2745,37 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_tokenize(PyObject *__pyx_
         __pyx_t_3 = (__pyx_v_i < __pyx_v_n);
         if (!__pyx_t_3) break;
 
-        /* "diffr/algorithms/myers_cy.pyx":55
+        /* "diffr/algorithms/myers_cy.pyx":46
  *             start = i
  *             while i < n:
  *                 ch = ord(text[i])             # <<<<<<<<<<<<<<
  *                 if not is_alnum_or_underscore(ch):
  *                     break
  */
-        __pyx_t_4 = __Pyx_GetItemInt_Unicode(__pyx_v_text, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(__pyx_t_4 == (Py_UCS4)-1)) __PYX_ERR(0, 55, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_GetItemInt_Unicode(__pyx_v_text, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(__pyx_t_4 == (Py_UCS4)-1)) __PYX_ERR(0, 46, __pyx_L1_error)
         __pyx_v_ch = __Pyx_long_cast(__pyx_t_4);
 
-        /* "diffr/algorithms/myers_cy.pyx":56
+        /* "diffr/algorithms/myers_cy.pyx":47
  *             while i < n:
  *                 ch = ord(text[i])
  *                 if not is_alnum_or_underscore(ch):             # <<<<<<<<<<<<<<
  *                     break
  *                 i += 1
  */
-        __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_is_alnum_or_underscore(__pyx_v_ch); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 56, __pyx_L1_error)
+        __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_is_alnum_or_underscore(__pyx_v_ch); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 47, __pyx_L1_error)
         __pyx_t_5 = (!__pyx_t_3);
         if (__pyx_t_5) {
 
-          /* "diffr/algorithms/myers_cy.pyx":57
+          /* "diffr/algorithms/myers_cy.pyx":48
  *                 ch = ord(text[i])
  *                 if not is_alnum_or_underscore(ch):
  *                     break             # <<<<<<<<<<<<<<
  *                 i += 1
  *             tokens.append(text[start:i])
  */
-          goto __pyx_L7_break;
+          goto __pyx_L8_break;
 
-          /* "diffr/algorithms/myers_cy.pyx":56
+          /* "diffr/algorithms/myers_cy.pyx":47
  *             while i < n:
  *                 ch = ord(text[i])
  *                 if not is_alnum_or_underscore(ch):             # <<<<<<<<<<<<<<
@@ -2807,7 +2784,7 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_tokenize(PyObject *__pyx_
  */
         }
 
-        /* "diffr/algorithms/myers_cy.pyx":58
+        /* "diffr/algorithms/myers_cy.pyx":49
  *                 if not is_alnum_or_underscore(ch):
  *                     break
  *                 i += 1             # <<<<<<<<<<<<<<
@@ -2816,81 +2793,79 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_tokenize(PyObject *__pyx_
  */
         __pyx_v_i = (__pyx_v_i + 1);
       }
-      __pyx_L7_break:;
+      __pyx_L8_break:;
 
-      /* "diffr/algorithms/myers_cy.pyx":59
+      /* "diffr/algorithms/myers_cy.pyx":50
  *                     break
  *                 i += 1
  *             tokens.append(text[start:i])             # <<<<<<<<<<<<<<
  *         else:
- *             tokens.append(text[i:i+1])
+ *             tokens.append(text[i])
  */
       if (unlikely(__pyx_v_text == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 59, __pyx_L1_error)
+        __PYX_ERR(0, 50, __pyx_L1_error)
       }
-      __pyx_t_1 = __Pyx_PyUnicode_Substring(__pyx_v_text, __pyx_v_start, __pyx_v_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyUnicode_Substring(__pyx_v_text, __pyx_v_start, __pyx_v_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_tokens, __pyx_t_1); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 59, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_tokens, __pyx_t_1); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 50, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "diffr/algorithms/myers_cy.pyx":52
- *         if is_ascii_space(ch):
+      /* "diffr/algorithms/myers_cy.pyx":43
  *             i += 1
- *         elif is_alnum_or_underscore(ch):             # <<<<<<<<<<<<<<
+ *             continue
+ *         if is_alnum_or_underscore(ch):             # <<<<<<<<<<<<<<
  *             start = i
  *             while i < n:
  */
-      goto __pyx_L5;
+      goto __pyx_L6;
     }
 
-    /* "diffr/algorithms/myers_cy.pyx":61
+    /* "diffr/algorithms/myers_cy.pyx":52
  *             tokens.append(text[start:i])
  *         else:
- *             tokens.append(text[i:i+1])             # <<<<<<<<<<<<<<
+ *             tokens.append(text[i])             # <<<<<<<<<<<<<<
  *             i += 1
- * 
+ *     return tokens
  */
     /*else*/ {
-      if (unlikely(__pyx_v_text == Py_None)) {
-        PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 61, __pyx_L1_error)
-      }
-      __pyx_t_1 = __Pyx_PyUnicode_Substring(__pyx_v_text, __pyx_v_i, (__pyx_v_i + 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_GetItemInt_Unicode(__pyx_v_text, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(__pyx_t_4 == (Py_UCS4)-1)) __PYX_ERR(0, 52, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyUnicode_FromOrdinal(__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_tokens, __pyx_t_1); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 61, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_tokens, __pyx_t_1); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 52, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "diffr/algorithms/myers_cy.pyx":62
+      /* "diffr/algorithms/myers_cy.pyx":53
  *         else:
- *             tokens.append(text[i:i+1])
+ *             tokens.append(text[i])
  *             i += 1             # <<<<<<<<<<<<<<
- * 
+ *     return tokens
  * 
  */
       __pyx_v_i = (__pyx_v_i + 1);
     }
-    __pyx_L5:;
+    __pyx_L6:;
+    __pyx_L3_continue:;
   }
 
-  /* "diffr/algorithms/myers_cy.pyx":65
- * 
- * 
+  /* "diffr/algorithms/myers_cy.pyx":54
+ *             tokens.append(text[i])
+ *             i += 1
  *     return tokens             # <<<<<<<<<<<<<<
  * 
- * 
+ * @cython.final
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_tokens);
   __pyx_r = __pyx_v_tokens;
   goto __pyx_L0;
 
-  /* "diffr/algorithms/myers_cy.pyx":37
+  /* "diffr/algorithms/myers_cy.pyx":33
  * 
  * @cython.final
  * cpdef list[str] tokenize(str text):             # <<<<<<<<<<<<<<
- *     """
- *     Tokenizes text into a list of tokens where each token is either a
+ *     cdef list tokens = []
+ *     cdef Py_ssize_t i = 0, n = len(text)
  */
 
   /* function exit code */
@@ -2913,8 +2888,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_5diffr_10algorithms_8myers_cy_tokenize, "\n    Tokenizes text into a list of tokens where each token is either a\n    contiguous sequence of word-characters (letters, digits, underscore)\n    or a single non-whitespace, non-word character.\n    ");
-static PyMethodDef __pyx_mdef_5diffr_10algorithms_8myers_cy_1tokenize = {"tokenize", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_5diffr_10algorithms_8myers_cy_1tokenize, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_5diffr_10algorithms_8myers_cy_tokenize};
+static PyMethodDef __pyx_mdef_5diffr_10algorithms_8myers_cy_1tokenize = {"tokenize", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_5diffr_10algorithms_8myers_cy_1tokenize, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
 static PyObject *__pyx_pw_5diffr_10algorithms_8myers_cy_1tokenize(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
@@ -2959,12 +2933,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 37, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "tokenize") < 0)) __PYX_ERR(0, 37, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "tokenize") < 0)) __PYX_ERR(0, 33, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -2975,7 +2949,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("tokenize", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 37, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("tokenize", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 33, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -2989,7 +2963,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_text), (&PyUnicode_Type), 1, "text", 1))) __PYX_ERR(0, 37, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_text), (&PyUnicode_Type), 1, "text", 1))) __PYX_ERR(0, 33, __pyx_L1_error)
   __pyx_r = __pyx_pf_5diffr_10algorithms_8myers_cy_tokenize(__pyx_self, __pyx_v_text);
 
   /* function exit code */
@@ -3016,7 +2990,7 @@ static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_tokenize(CYTHON_UNUSED P
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("tokenize", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5diffr_10algorithms_8myers_cy_tokenize(__pyx_v_text, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5diffr_10algorithms_8myers_cy_tokenize(__pyx_v_text, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3033,12 +3007,12 @@ static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_tokenize(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "diffr/algorithms/myers_cy.pyx":69
+/* "diffr/algorithms/myers_cy.pyx":57
  * 
  * @cython.final
  * cpdef list[tuple[str, str]] diff_line(str original, str updated):             # <<<<<<<<<<<<<<
- *     # Tokenize input strings into lists of words
- *     cdef list[str] words1 = tokenize(original) if original else []
+ *     """
+ *     A fast Myers diff that uses C arrays (wrapped in PyCapsules) for the diagonal map.
  */
 
 static PyObject *__pyx_pw_5diffr_10algorithms_8myers_cy_3diff_line(PyObject *__pyx_self, 
@@ -3054,17 +3028,21 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
   Py_ssize_t __pyx_v_N;
   Py_ssize_t __pyx_v_M;
   Py_ssize_t __pyx_v_max_d;
-  PyObject *__pyx_v_V = 0;
-  PyObject *__pyx_v_trace = 0;
+  Py_ssize_t __pyx_v_size;
+  int __pyx_v_offset;
+  Py_ssize_t __pyx_v_i;
   Py_ssize_t __pyx_v_d;
   Py_ssize_t __pyx_v_k;
+  Py_ssize_t __pyx_v_k_index;
   Py_ssize_t __pyx_v_x;
   Py_ssize_t __pyx_v_y;
-  Py_ssize_t __pyx_v_v_km;
-  Py_ssize_t __pyx_v_v_kp;
-  PyObject *__pyx_v_current_V = 0;
-  PyObject *__pyx_7genexpr__pyx_v_word = NULL;
-  PyObject *__pyx_8genexpr1__pyx_v_word = NULL;
+  int *__pyx_v_V;
+  PyObject *__pyx_v_trace = 0;
+  int *__pyx_v_current_V;
+  PyObject *__pyx_v_capsule = NULL;
+  PyObject *__pyx_7genexpr__pyx_v_w = NULL;
+  PyObject *__pyx_8genexpr1__pyx_v_w = NULL;
+  PyObject *__pyx_8genexpr2__pyx_v_token = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3075,32 +3053,33 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
   PyObject *__pyx_t_6 = NULL;
   Py_ssize_t __pyx_t_7;
   Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
+  int __pyx_t_9;
   Py_ssize_t __pyx_t_10;
-  Py_ssize_t __pyx_t_11;
+  void *__pyx_t_11;
   Py_ssize_t __pyx_t_12;
   Py_ssize_t __pyx_t_13;
   int __pyx_t_14;
+  int __pyx_t_15;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("diff_line", 1);
 
-  /* "diffr/algorithms/myers_cy.pyx":71
- * cpdef list[tuple[str, str]] diff_line(str original, str updated):
- *     # Tokenize input strings into lists of words
+  /* "diffr/algorithms/myers_cy.pyx":63
+ *     the beginning (like "result") are marked as equal.
+ *     """
  *     cdef list[str] words1 = tokenize(original) if original else []             # <<<<<<<<<<<<<<
  *     cdef list[str] words2 = tokenize(updated) if updated else []
  * 
  */
   __pyx_t_2 = (__pyx_v_original != Py_None)&&(__Pyx_PyUnicode_IS_TRUE(__pyx_v_original) != 0);
   if (__pyx_t_2) {
-    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_tokenize(__pyx_v_original, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_tokenize(__pyx_v_original, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_1 = __pyx_t_3;
     __pyx_t_3 = 0;
   } else {
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_1 = __pyx_t_3;
     __pyx_t_3 = 0;
@@ -3108,21 +3087,21 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
   __pyx_v_words1 = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "diffr/algorithms/myers_cy.pyx":72
- *     # Tokenize input strings into lists of words
+  /* "diffr/algorithms/myers_cy.pyx":64
+ *     """
  *     cdef list[str] words1 = tokenize(original) if original else []
  *     cdef list[str] words2 = tokenize(updated) if updated else []             # <<<<<<<<<<<<<<
  * 
- *     # Get lengths of the word lists
+ *     cdef Py_ssize_t N = len(words1)
  */
   __pyx_t_2 = (__pyx_v_updated != Py_None)&&(__Pyx_PyUnicode_IS_TRUE(__pyx_v_updated) != 0);
   if (__pyx_t_2) {
-    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_tokenize(__pyx_v_updated, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy_tokenize(__pyx_v_updated, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 64, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_1 = __pyx_t_3;
     __pyx_t_3 = 0;
   } else {
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 64, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_1 = __pyx_t_3;
     __pyx_t_3 = 0;
@@ -3130,39 +3109,39 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
   __pyx_v_words2 = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "diffr/algorithms/myers_cy.pyx":75
+  /* "diffr/algorithms/myers_cy.pyx":66
+ *     cdef list[str] words2 = tokenize(updated) if updated else []
  * 
- *     # Get lengths of the word lists
  *     cdef Py_ssize_t N = len(words1)             # <<<<<<<<<<<<<<
  *     cdef Py_ssize_t M = len(words2)
- * 
+ *     if N == 0 and M == 0:
  */
   if (unlikely(__pyx_v_words1 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 75, __pyx_L1_error)
+    __PYX_ERR(0, 66, __pyx_L1_error)
   }
-  __pyx_t_4 = __Pyx_PyList_GET_SIZE(__pyx_v_words1); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyList_GET_SIZE(__pyx_v_words1); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 66, __pyx_L1_error)
   __pyx_v_N = __pyx_t_4;
 
-  /* "diffr/algorithms/myers_cy.pyx":76
- *     # Get lengths of the word lists
+  /* "diffr/algorithms/myers_cy.pyx":67
+ * 
  *     cdef Py_ssize_t N = len(words1)
  *     cdef Py_ssize_t M = len(words2)             # <<<<<<<<<<<<<<
- * 
- *     # Handle edge cases
+ *     if N == 0 and M == 0:
+ *          return []
  */
   if (unlikely(__pyx_v_words2 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 76, __pyx_L1_error)
+    __PYX_ERR(0, 67, __pyx_L1_error)
   }
-  __pyx_t_4 = __Pyx_PyList_GET_SIZE(__pyx_v_words2); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyList_GET_SIZE(__pyx_v_words2); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 67, __pyx_L1_error)
   __pyx_v_M = __pyx_t_4;
 
-  /* "diffr/algorithms/myers_cy.pyx":79
- * 
- *     # Handle edge cases
+  /* "diffr/algorithms/myers_cy.pyx":68
+ *     cdef Py_ssize_t N = len(words1)
+ *     cdef Py_ssize_t M = len(words2)
  *     if N == 0 and M == 0:             # <<<<<<<<<<<<<<
- *         return []
+ *          return []
  *     if N == 0:
  */
   __pyx_t_5 = (__pyx_v_N == 0);
@@ -3176,53 +3155,53 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_2) {
 
-    /* "diffr/algorithms/myers_cy.pyx":80
- *     # Handle edge cases
+    /* "diffr/algorithms/myers_cy.pyx":69
+ *     cdef Py_ssize_t M = len(words2)
  *     if N == 0 and M == 0:
- *         return []             # <<<<<<<<<<<<<<
+ *          return []             # <<<<<<<<<<<<<<
  *     if N == 0:
- *         return [("insert", word) for word in words2]
+ *          return [("insert", w) for w in words2]
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_r = ((PyObject*)__pyx_t_1);
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "diffr/algorithms/myers_cy.pyx":79
- * 
- *     # Handle edge cases
+    /* "diffr/algorithms/myers_cy.pyx":68
+ *     cdef Py_ssize_t N = len(words1)
+ *     cdef Py_ssize_t M = len(words2)
  *     if N == 0 and M == 0:             # <<<<<<<<<<<<<<
- *         return []
+ *          return []
  *     if N == 0:
  */
   }
 
-  /* "diffr/algorithms/myers_cy.pyx":81
+  /* "diffr/algorithms/myers_cy.pyx":70
  *     if N == 0 and M == 0:
- *         return []
+ *          return []
  *     if N == 0:             # <<<<<<<<<<<<<<
- *         return [("insert", word) for word in words2]
+ *          return [("insert", w) for w in words2]
  *     if M == 0:
  */
   __pyx_t_2 = (__pyx_v_N == 0);
   if (__pyx_t_2) {
 
-    /* "diffr/algorithms/myers_cy.pyx":82
- *         return []
+    /* "diffr/algorithms/myers_cy.pyx":71
+ *          return []
  *     if N == 0:
- *         return [("insert", word) for word in words2]             # <<<<<<<<<<<<<<
+ *          return [("insert", w) for w in words2]             # <<<<<<<<<<<<<<
  *     if M == 0:
- *         return [("delete", word) for word in words1]
+ *          return [("delete", w) for w in words1]
  */
     __Pyx_XDECREF(__pyx_r);
     { /* enter inner scope */
-      __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L9_error)
+      __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L9_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (unlikely(__pyx_v_words2 == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-        __PYX_ERR(0, 82, __pyx_L9_error)
+        __PYX_ERR(0, 71, __pyx_L9_error)
       }
       __pyx_t_3 = __pyx_v_words2; __Pyx_INCREF(__pyx_t_3);
       __pyx_t_4 = 0;
@@ -3230,34 +3209,34 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_3);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 82, __pyx_L9_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 71, __pyx_L9_error)
           #endif
           if (__pyx_t_4 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 82, __pyx_L9_error)
+        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 71, __pyx_L9_error)
         #else
-        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 82, __pyx_L9_error)
+        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L9_error)
         __Pyx_GOTREF(__pyx_t_6);
         #endif
-        __Pyx_XDECREF_SET(__pyx_7genexpr__pyx_v_word, __pyx_t_6);
+        __Pyx_XDECREF_SET(__pyx_7genexpr__pyx_v_w, __pyx_t_6);
         __pyx_t_6 = 0;
-        __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 82, __pyx_L9_error)
+        __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L9_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_INCREF(__pyx_n_u_insert);
         __Pyx_GIVEREF(__pyx_n_u_insert);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_n_u_insert)) __PYX_ERR(0, 82, __pyx_L9_error);
-        __Pyx_INCREF(__pyx_7genexpr__pyx_v_word);
-        __Pyx_GIVEREF(__pyx_7genexpr__pyx_v_word);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_7genexpr__pyx_v_word)) __PYX_ERR(0, 82, __pyx_L9_error);
-        if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 82, __pyx_L9_error)
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_n_u_insert)) __PYX_ERR(0, 71, __pyx_L9_error);
+        __Pyx_INCREF(__pyx_7genexpr__pyx_v_w);
+        __Pyx_GIVEREF(__pyx_7genexpr__pyx_v_w);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_7genexpr__pyx_v_w)) __PYX_ERR(0, 71, __pyx_L9_error);
+        if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 71, __pyx_L9_error)
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_XDECREF(__pyx_7genexpr__pyx_v_word); __pyx_7genexpr__pyx_v_word = 0;
+      __Pyx_XDECREF(__pyx_7genexpr__pyx_v_w); __pyx_7genexpr__pyx_v_w = 0;
       goto __pyx_L13_exit_scope;
       __pyx_L9_error:;
-      __Pyx_XDECREF(__pyx_7genexpr__pyx_v_word); __pyx_7genexpr__pyx_v_word = 0;
+      __Pyx_XDECREF(__pyx_7genexpr__pyx_v_w); __pyx_7genexpr__pyx_v_w = 0;
       goto __pyx_L1_error;
       __pyx_L13_exit_scope:;
     } /* exit inner scope */
@@ -3265,39 +3244,39 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "diffr/algorithms/myers_cy.pyx":81
+    /* "diffr/algorithms/myers_cy.pyx":70
  *     if N == 0 and M == 0:
- *         return []
+ *          return []
  *     if N == 0:             # <<<<<<<<<<<<<<
- *         return [("insert", word) for word in words2]
+ *          return [("insert", w) for w in words2]
  *     if M == 0:
  */
   }
 
-  /* "diffr/algorithms/myers_cy.pyx":83
+  /* "diffr/algorithms/myers_cy.pyx":72
  *     if N == 0:
- *         return [("insert", word) for word in words2]
+ *          return [("insert", w) for w in words2]
  *     if M == 0:             # <<<<<<<<<<<<<<
- *         return [("delete", word) for word in words1]
+ *          return [("delete", w) for w in words1]
  * 
  */
   __pyx_t_2 = (__pyx_v_M == 0);
   if (__pyx_t_2) {
 
-    /* "diffr/algorithms/myers_cy.pyx":84
- *         return [("insert", word) for word in words2]
+    /* "diffr/algorithms/myers_cy.pyx":73
+ *          return [("insert", w) for w in words2]
  *     if M == 0:
- *         return [("delete", word) for word in words1]             # <<<<<<<<<<<<<<
+ *          return [("delete", w) for w in words1]             # <<<<<<<<<<<<<<
  * 
- *     # Initialize variables for Myers diff algorithm
+ *     cdef Py_ssize_t max_d = N + M
  */
     __Pyx_XDECREF(__pyx_r);
     { /* enter inner scope */
-      __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L17_error)
+      __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L17_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (unlikely(__pyx_v_words1 == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-        __PYX_ERR(0, 84, __pyx_L17_error)
+        __PYX_ERR(0, 73, __pyx_L17_error)
       }
       __pyx_t_3 = __pyx_v_words1; __Pyx_INCREF(__pyx_t_3);
       __pyx_t_4 = 0;
@@ -3305,34 +3284,34 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_3);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 84, __pyx_L17_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 73, __pyx_L17_error)
           #endif
           if (__pyx_t_4 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 84, __pyx_L17_error)
+        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 73, __pyx_L17_error)
         #else
-        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L17_error)
+        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 73, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_6);
         #endif
-        __Pyx_XDECREF_SET(__pyx_8genexpr1__pyx_v_word, __pyx_t_6);
+        __Pyx_XDECREF_SET(__pyx_8genexpr1__pyx_v_w, __pyx_t_6);
         __pyx_t_6 = 0;
-        __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L17_error)
+        __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 73, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_INCREF(__pyx_n_u_delete);
         __Pyx_GIVEREF(__pyx_n_u_delete);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_n_u_delete)) __PYX_ERR(0, 84, __pyx_L17_error);
-        __Pyx_INCREF(__pyx_8genexpr1__pyx_v_word);
-        __Pyx_GIVEREF(__pyx_8genexpr1__pyx_v_word);
-        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_8genexpr1__pyx_v_word)) __PYX_ERR(0, 84, __pyx_L17_error);
-        if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 84, __pyx_L17_error)
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_n_u_delete)) __PYX_ERR(0, 73, __pyx_L17_error);
+        __Pyx_INCREF(__pyx_8genexpr1__pyx_v_w);
+        __Pyx_GIVEREF(__pyx_8genexpr1__pyx_v_w);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_8genexpr1__pyx_v_w)) __PYX_ERR(0, 73, __pyx_L17_error);
+        if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 73, __pyx_L17_error)
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_XDECREF(__pyx_8genexpr1__pyx_v_word); __pyx_8genexpr1__pyx_v_word = 0;
+      __Pyx_XDECREF(__pyx_8genexpr1__pyx_v_w); __pyx_8genexpr1__pyx_v_w = 0;
       goto __pyx_L21_exit_scope;
       __pyx_L17_error:;
-      __Pyx_XDECREF(__pyx_8genexpr1__pyx_v_word); __pyx_8genexpr1__pyx_v_word = 0;
+      __Pyx_XDECREF(__pyx_8genexpr1__pyx_v_w); __pyx_8genexpr1__pyx_v_w = 0;
       goto __pyx_L1_error;
       __pyx_L21_exit_scope:;
     } /* exit inner scope */
@@ -3340,367 +3319,715 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "diffr/algorithms/myers_cy.pyx":83
+    /* "diffr/algorithms/myers_cy.pyx":72
  *     if N == 0:
- *         return [("insert", word) for word in words2]
+ *          return [("insert", w) for w in words2]
  *     if M == 0:             # <<<<<<<<<<<<<<
- *         return [("delete", word) for word in words1]
+ *          return [("delete", w) for w in words1]
  * 
  */
   }
 
-  /* "diffr/algorithms/myers_cy.pyx":87
+  /* "diffr/algorithms/myers_cy.pyx":75
+ *          return [("delete", w) for w in words1]
  * 
- *     # Initialize variables for Myers diff algorithm
  *     cdef Py_ssize_t max_d = N + M             # <<<<<<<<<<<<<<
- *     cdef dict[int, int] V = {0: 0}  # Diagonal map: k -> x
- *     cdef list trace = []  # Store V states for backtracking
+ *     cdef Py_ssize_t size = 2 * max_d + 1
+ *     cdef int offset = max_d
  */
   __pyx_v_max_d = (__pyx_v_N + __pyx_v_M);
 
-  /* "diffr/algorithms/myers_cy.pyx":88
- *     # Initialize variables for Myers diff algorithm
- *     cdef Py_ssize_t max_d = N + M
- *     cdef dict[int, int] V = {0: 0}  # Diagonal map: k -> x             # <<<<<<<<<<<<<<
- *     cdef list trace = []  # Store V states for backtracking
+  /* "diffr/algorithms/myers_cy.pyx":76
  * 
+ *     cdef Py_ssize_t max_d = N + M
+ *     cdef Py_ssize_t size = 2 * max_d + 1             # <<<<<<<<<<<<<<
+ *     cdef int offset = max_d
+ *     cdef Py_ssize_t i, d, k, k_index, x, y
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_int_0, __pyx_int_0) < 0) __PYX_ERR(0, 88, __pyx_L1_error)
-  __pyx_v_V = ((PyObject*)__pyx_t_1);
-  __pyx_t_1 = 0;
+  __pyx_v_size = ((2 * __pyx_v_max_d) + 1);
 
-  /* "diffr/algorithms/myers_cy.pyx":89
+  /* "diffr/algorithms/myers_cy.pyx":77
  *     cdef Py_ssize_t max_d = N + M
- *     cdef dict[int, int] V = {0: 0}  # Diagonal map: k -> x
- *     cdef list trace = []  # Store V states for backtracking             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t size = 2 * max_d + 1
+ *     cdef int offset = max_d             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t i, d, k, k_index, x, y
  * 
- *     cdef Py_ssize_t d, k, x, y, v_km, v_kp
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
+  __pyx_v_offset = __pyx_v_max_d;
+
+  /* "diffr/algorithms/myers_cy.pyx":81
+ * 
+ *     # Allocate the initial V array.
+ *     cdef int* V = <int*> malloc(size * sizeof(int))             # <<<<<<<<<<<<<<
+ *     if not V:
+ *          raise MemoryError()
+ */
+  __pyx_v_V = ((int *)malloc((__pyx_v_size * (sizeof(int)))));
+
+  /* "diffr/algorithms/myers_cy.pyx":82
+ *     # Allocate the initial V array.
+ *     cdef int* V = <int*> malloc(size * sizeof(int))
+ *     if not V:             # <<<<<<<<<<<<<<
+ *          raise MemoryError()
+ *     # Initialize V: all entries -1, then set V[offset] = 0.
+ */
+  __pyx_t_2 = (!(__pyx_v_V != 0));
+  if (unlikely(__pyx_t_2)) {
+
+    /* "diffr/algorithms/myers_cy.pyx":83
+ *     cdef int* V = <int*> malloc(size * sizeof(int))
+ *     if not V:
+ *          raise MemoryError()             # <<<<<<<<<<<<<<
+ *     # Initialize V: all entries -1, then set V[offset] = 0.
+ *     for i in range(size):
+ */
+    PyErr_NoMemory(); __PYX_ERR(0, 83, __pyx_L1_error)
+
+    /* "diffr/algorithms/myers_cy.pyx":82
+ *     # Allocate the initial V array.
+ *     cdef int* V = <int*> malloc(size * sizeof(int))
+ *     if not V:             # <<<<<<<<<<<<<<
+ *          raise MemoryError()
+ *     # Initialize V: all entries -1, then set V[offset] = 0.
+ */
+  }
+
+  /* "diffr/algorithms/myers_cy.pyx":85
+ *          raise MemoryError()
+ *     # Initialize V: all entries -1, then set V[offset] = 0.
+ *     for i in range(size):             # <<<<<<<<<<<<<<
+ *          V[i] = -1
+ *     V[offset] = 0
+ */
+  __pyx_t_4 = __pyx_v_size;
+  __pyx_t_7 = __pyx_t_4;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_i = __pyx_t_8;
+
+    /* "diffr/algorithms/myers_cy.pyx":86
+ *     # Initialize V: all entries -1, then set V[offset] = 0.
+ *     for i in range(size):
+ *          V[i] = -1             # <<<<<<<<<<<<<<
+ *     V[offset] = 0
+ * 
+ */
+    (__pyx_v_V[__pyx_v_i]) = -1;
+  }
+
+  /* "diffr/algorithms/myers_cy.pyx":87
+ *     for i in range(size):
+ *          V[i] = -1
+ *     V[offset] = 0             # <<<<<<<<<<<<<<
+ * 
+ *     # --- Initial snake advancement (d=0) ---
+ */
+  (__pyx_v_V[__pyx_v_offset]) = 0;
+
+  /* "diffr/algorithms/myers_cy.pyx":90
+ * 
+ *     # --- Initial snake advancement (d=0) ---
+ *     x = V[offset]             # <<<<<<<<<<<<<<
+ *     y = x  # since k == 0 for d=0
+ *     while x < N and y < M and words1[x] == words2[y]:
+ */
+  __pyx_v_x = (__pyx_v_V[__pyx_v_offset]);
+
+  /* "diffr/algorithms/myers_cy.pyx":91
+ *     # --- Initial snake advancement (d=0) ---
+ *     x = V[offset]
+ *     y = x  # since k == 0 for d=0             # <<<<<<<<<<<<<<
+ *     while x < N and y < M and words1[x] == words2[y]:
+ *          x += 1
+ */
+  __pyx_v_y = __pyx_v_x;
+
+  /* "diffr/algorithms/myers_cy.pyx":92
+ *     x = V[offset]
+ *     y = x  # since k == 0 for d=0
+ *     while x < N and y < M and words1[x] == words2[y]:             # <<<<<<<<<<<<<<
+ *          x += 1
+ *          y += 1
+ */
+  while (1) {
+    __pyx_t_5 = (__pyx_v_x < __pyx_v_N);
+    if (__pyx_t_5) {
+    } else {
+      __pyx_t_2 = __pyx_t_5;
+      goto __pyx_L27_bool_binop_done;
+    }
+    __pyx_t_5 = (__pyx_v_y < __pyx_v_M);
+    if (__pyx_t_5) {
+    } else {
+      __pyx_t_2 = __pyx_t_5;
+      goto __pyx_L27_bool_binop_done;
+    }
+    if (unlikely(__pyx_v_words1 == Py_None)) {
+      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
+      __PYX_ERR(0, 92, __pyx_L1_error)
+    }
+    if (unlikely(__pyx_v_words2 == Py_None)) {
+      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
+      __PYX_ERR(0, 92, __pyx_L1_error)
+    }
+    __pyx_t_1 = PyObject_RichCompare(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x), PyList_GET_ITEM(__pyx_v_words2, __pyx_v_y), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 92, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 92, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_2 = __pyx_t_5;
+    __pyx_L27_bool_binop_done:;
+    if (!__pyx_t_2) break;
+
+    /* "diffr/algorithms/myers_cy.pyx":93
+ *     y = x  # since k == 0 for d=0
+ *     while x < N and y < M and words1[x] == words2[y]:
+ *          x += 1             # <<<<<<<<<<<<<<
+ *          y += 1
+ *     V[offset] = x
+ */
+    __pyx_v_x = (__pyx_v_x + 1);
+
+    /* "diffr/algorithms/myers_cy.pyx":94
+ *     while x < N and y < M and words1[x] == words2[y]:
+ *          x += 1
+ *          y += 1             # <<<<<<<<<<<<<<
+ *     V[offset] = x
+ *     # If the entire sequences match, we can return immediately.
+ */
+    __pyx_v_y = (__pyx_v_y + 1);
+  }
+
+  /* "diffr/algorithms/myers_cy.pyx":95
+ *          x += 1
+ *          y += 1
+ *     V[offset] = x             # <<<<<<<<<<<<<<
+ *     # If the entire sequences match, we can return immediately.
+ *     if x >= N and y >= M:
+ */
+  (__pyx_v_V[__pyx_v_offset]) = __pyx_v_x;
+
+  /* "diffr/algorithms/myers_cy.pyx":97
+ *     V[offset] = x
+ *     # If the entire sequences match, we can return immediately.
+ *     if x >= N and y >= M:             # <<<<<<<<<<<<<<
+ *          # Build a script marking all tokens as equal.
+ *          return [("equal", token) for token in words1]
+ */
+  __pyx_t_5 = (__pyx_v_x >= __pyx_v_N);
+  if (__pyx_t_5) {
+  } else {
+    __pyx_t_2 = __pyx_t_5;
+    goto __pyx_L31_bool_binop_done;
+  }
+  __pyx_t_5 = (__pyx_v_y >= __pyx_v_M);
+  __pyx_t_2 = __pyx_t_5;
+  __pyx_L31_bool_binop_done:;
+  if (__pyx_t_2) {
+
+    /* "diffr/algorithms/myers_cy.pyx":99
+ *     if x >= N and y >= M:
+ *          # Build a script marking all tokens as equal.
+ *          return [("equal", token) for token in words1]             # <<<<<<<<<<<<<<
+ * 
+ *     # Trace stores a PyCapsule wrapping each V array.
+ */
+    __Pyx_XDECREF(__pyx_r);
+    { /* enter inner scope */
+      __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L35_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (unlikely(__pyx_v_words1 == Py_None)) {
+        PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
+        __PYX_ERR(0, 99, __pyx_L35_error)
+      }
+      __pyx_t_3 = __pyx_v_words1; __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_4 = 0;
+      for (;;) {
+        {
+          Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_3);
+          #if !CYTHON_ASSUME_SAFE_MACROS
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 99, __pyx_L35_error)
+          #endif
+          if (__pyx_t_4 >= __pyx_temp) break;
+        }
+        #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 99, __pyx_L35_error)
+        #else
+        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 99, __pyx_L35_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        #endif
+        __Pyx_XDECREF_SET(__pyx_8genexpr2__pyx_v_token, __pyx_t_6);
+        __pyx_t_6 = 0;
+        __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 99, __pyx_L35_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __Pyx_INCREF(__pyx_n_u_equal);
+        __Pyx_GIVEREF(__pyx_n_u_equal);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_n_u_equal)) __PYX_ERR(0, 99, __pyx_L35_error);
+        __Pyx_INCREF(__pyx_8genexpr2__pyx_v_token);
+        __Pyx_GIVEREF(__pyx_8genexpr2__pyx_v_token);
+        if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_8genexpr2__pyx_v_token)) __PYX_ERR(0, 99, __pyx_L35_error);
+        if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 99, __pyx_L35_error)
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      }
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_XDECREF(__pyx_8genexpr2__pyx_v_token); __pyx_8genexpr2__pyx_v_token = 0;
+      goto __pyx_L39_exit_scope;
+      __pyx_L35_error:;
+      __Pyx_XDECREF(__pyx_8genexpr2__pyx_v_token); __pyx_8genexpr2__pyx_v_token = 0;
+      goto __pyx_L1_error;
+      __pyx_L39_exit_scope:;
+    } /* exit inner scope */
+    __pyx_r = ((PyObject*)__pyx_t_1);
+    __pyx_t_1 = 0;
+    goto __pyx_L0;
+
+    /* "diffr/algorithms/myers_cy.pyx":97
+ *     V[offset] = x
+ *     # If the entire sequences match, we can return immediately.
+ *     if x >= N and y >= M:             # <<<<<<<<<<<<<<
+ *          # Build a script marking all tokens as equal.
+ *          return [("equal", token) for token in words1]
+ */
+  }
+
+  /* "diffr/algorithms/myers_cy.pyx":102
+ * 
+ *     # Trace stores a PyCapsule wrapping each V array.
+ *     cdef list trace = []             # <<<<<<<<<<<<<<
+ *     trace.append(PyCapsule_New(V, b"V_ptr", NULL))
+ * 
+ */
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 102, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_trace = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "diffr/algorithms/myers_cy.pyx":95
+  /* "diffr/algorithms/myers_cy.pyx":103
+ *     # Trace stores a PyCapsule wrapping each V array.
+ *     cdef list trace = []
+ *     trace.append(PyCapsule_New(V, b"V_ptr", NULL))             # <<<<<<<<<<<<<<
  * 
- *     # Forward pass: Build the shortest edit path
- *     for d in range(max_d + 1):             # <<<<<<<<<<<<<<
- *         current_V = {}
- * 
+ *     cdef int* current_V
+ */
+  __pyx_t_1 = PyCapsule_New(__pyx_v_V, ((char const *)"V_ptr"), NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_trace, __pyx_t_1); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 103, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "diffr/algorithms/myers_cy.pyx":107
+ *     cdef int* current_V
+ *     # Forward pass: iterate d = 1 to max_d.
+ *     for d in range(1, max_d + 1):             # <<<<<<<<<<<<<<
+ *          current_V = <int*> malloc(size * sizeof(int))
+ *          if not current_V:
  */
   __pyx_t_4 = (__pyx_v_max_d + 1);
   __pyx_t_7 = __pyx_t_4;
-  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+  for (__pyx_t_8 = 1; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_d = __pyx_t_8;
 
-    /* "diffr/algorithms/myers_cy.pyx":96
- *     # Forward pass: Build the shortest edit path
- *     for d in range(max_d + 1):
- *         current_V = {}             # <<<<<<<<<<<<<<
- * 
- *         for k in range(-d, d + 1, 2):
+    /* "diffr/algorithms/myers_cy.pyx":108
+ *     # Forward pass: iterate d = 1 to max_d.
+ *     for d in range(1, max_d + 1):
+ *          current_V = <int*> malloc(size * sizeof(int))             # <<<<<<<<<<<<<<
+ *          if not current_V:
+ *               for capsule in trace:
  */
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_XDECREF_SET(__pyx_v_current_V, ((PyObject*)__pyx_t_1));
-    __pyx_t_1 = 0;
+    __pyx_v_current_V = ((int *)malloc((__pyx_v_size * (sizeof(int)))));
 
-    /* "diffr/algorithms/myers_cy.pyx":98
- *         current_V = {}
- * 
- *         for k in range(-d, d + 1, 2):             # <<<<<<<<<<<<<<
- *             # Get furthest x values for adjacent diagonals
- *             v_km = V[k - 1] if k - 1 in V else -1
+    /* "diffr/algorithms/myers_cy.pyx":109
+ *     for d in range(1, max_d + 1):
+ *          current_V = <int*> malloc(size * sizeof(int))
+ *          if not current_V:             # <<<<<<<<<<<<<<
+ *               for capsule in trace:
+ *                    free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
  */
-    __pyx_t_9 = (__pyx_v_d + 1);
-    __pyx_t_10 = __pyx_t_9;
-    for (__pyx_t_11 = (-__pyx_v_d); __pyx_t_11 < __pyx_t_10; __pyx_t_11+=2) {
-      __pyx_v_k = __pyx_t_11;
+    __pyx_t_2 = (!(__pyx_v_current_V != 0));
+    if (__pyx_t_2) {
 
-      /* "diffr/algorithms/myers_cy.pyx":100
- *         for k in range(-d, d + 1, 2):
- *             # Get furthest x values for adjacent diagonals
- *             v_km = V[k - 1] if k - 1 in V else -1             # <<<<<<<<<<<<<<
- *             v_kp = V[k + 1] if k + 1 in V else -1
- * 
+      /* "diffr/algorithms/myers_cy.pyx":110
+ *          current_V = <int*> malloc(size * sizeof(int))
+ *          if not current_V:
+ *               for capsule in trace:             # <<<<<<<<<<<<<<
+ *                    free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
+ *               raise MemoryError()
  */
-      __pyx_t_1 = PyInt_FromSsize_t((__pyx_v_k - 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_2 = (__Pyx_PyDict_ContainsTF(__pyx_t_1, __pyx_v_V, Py_EQ)); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 100, __pyx_L1_error)
+      __pyx_t_1 = __pyx_v_trace; __Pyx_INCREF(__pyx_t_1);
+      __pyx_t_10 = 0;
+      for (;;) {
+        {
+          Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
+          #if !CYTHON_ASSUME_SAFE_MACROS
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 110, __pyx_L1_error)
+          #endif
+          if (__pyx_t_10 >= __pyx_temp) break;
+        }
+        #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_10); __Pyx_INCREF(__pyx_t_3); __pyx_t_10++; if (unlikely((0 < 0))) __PYX_ERR(0, 110, __pyx_L1_error)
+        #else
+        __pyx_t_3 = __Pyx_PySequence_ITEM(__pyx_t_1, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 110, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        #endif
+        __Pyx_XDECREF_SET(__pyx_v_capsule, __pyx_t_3);
+        __pyx_t_3 = 0;
+
+        /* "diffr/algorithms/myers_cy.pyx":111
+ *          if not current_V:
+ *               for capsule in trace:
+ *                    free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))             # <<<<<<<<<<<<<<
+ *               raise MemoryError()
+ *          # Copy the previous V.
+ */
+        __pyx_t_11 = PyCapsule_GetPointer(__pyx_v_capsule, ((char const *)"V_ptr")); if (unlikely(__pyx_t_11 == ((void *)NULL) && PyErr_Occurred())) __PYX_ERR(0, 111, __pyx_L1_error)
+        free(((int *)__pyx_t_11));
+
+        /* "diffr/algorithms/myers_cy.pyx":110
+ *          current_V = <int*> malloc(size * sizeof(int))
+ *          if not current_V:
+ *               for capsule in trace:             # <<<<<<<<<<<<<<
+ *                    free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
+ *               raise MemoryError()
+ */
+      }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+      /* "diffr/algorithms/myers_cy.pyx":112
+ *               for capsule in trace:
+ *                    free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
+ *               raise MemoryError()             # <<<<<<<<<<<<<<
+ *          # Copy the previous V.
+ *          for i in range(size):
+ */
+      PyErr_NoMemory(); __PYX_ERR(0, 112, __pyx_L1_error)
+
+      /* "diffr/algorithms/myers_cy.pyx":109
+ *     for d in range(1, max_d + 1):
+ *          current_V = <int*> malloc(size * sizeof(int))
+ *          if not current_V:             # <<<<<<<<<<<<<<
+ *               for capsule in trace:
+ *                    free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
+ */
+    }
+
+    /* "diffr/algorithms/myers_cy.pyx":114
+ *               raise MemoryError()
+ *          # Copy the previous V.
+ *          for i in range(size):             # <<<<<<<<<<<<<<
+ *               current_V[i] = V[i]
+ *          for k in range(-d, d + 1, 2):
+ */
+    __pyx_t_10 = __pyx_v_size;
+    __pyx_t_12 = __pyx_t_10;
+    for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
+      __pyx_v_i = __pyx_t_13;
+
+      /* "diffr/algorithms/myers_cy.pyx":115
+ *          # Copy the previous V.
+ *          for i in range(size):
+ *               current_V[i] = V[i]             # <<<<<<<<<<<<<<
+ *          for k in range(-d, d + 1, 2):
+ *               k_index = k + offset
+ */
+      (__pyx_v_current_V[__pyx_v_i]) = (__pyx_v_V[__pyx_v_i]);
+    }
+
+    /* "diffr/algorithms/myers_cy.pyx":116
+ *          for i in range(size):
+ *               current_V[i] = V[i]
+ *          for k in range(-d, d + 1, 2):             # <<<<<<<<<<<<<<
+ *               k_index = k + offset
+ *               if k == -d:
+ */
+    __pyx_t_10 = (__pyx_v_d + 1);
+    __pyx_t_12 = __pyx_t_10;
+    for (__pyx_t_13 = (-__pyx_v_d); __pyx_t_13 < __pyx_t_12; __pyx_t_13+=2) {
+      __pyx_v_k = __pyx_t_13;
+
+      /* "diffr/algorithms/myers_cy.pyx":117
+ *               current_V[i] = V[i]
+ *          for k in range(-d, d + 1, 2):
+ *               k_index = k + offset             # <<<<<<<<<<<<<<
+ *               if k == -d:
+ *                    x = get_insertion(V, k + 1, offset, size)
+ */
+      __pyx_v_k_index = (__pyx_v_k + __pyx_v_offset);
+
+      /* "diffr/algorithms/myers_cy.pyx":118
+ *          for k in range(-d, d + 1, 2):
+ *               k_index = k + offset
+ *               if k == -d:             # <<<<<<<<<<<<<<
+ *                    x = get_insertion(V, k + 1, offset, size)
+ *               elif k == d:
+ */
+      __pyx_t_2 = (__pyx_v_k == (-__pyx_v_d));
       if (__pyx_t_2) {
-        __pyx_t_1 = PyInt_FromSsize_t((__pyx_v_k - 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_V, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_13 = __Pyx_PyIndex_AsSsize_t(__pyx_t_3); if (unlikely((__pyx_t_13 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 100, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_12 = __pyx_t_13;
-      } else {
-        __pyx_t_12 = -1L;
-      }
-      __pyx_v_v_km = __pyx_t_12;
 
-      /* "diffr/algorithms/myers_cy.pyx":101
- *             # Get furthest x values for adjacent diagonals
- *             v_km = V[k - 1] if k - 1 in V else -1
- *             v_kp = V[k + 1] if k + 1 in V else -1             # <<<<<<<<<<<<<<
- * 
- *             # Choose direction: insert or delete
+        /* "diffr/algorithms/myers_cy.pyx":119
+ *               k_index = k + offset
+ *               if k == -d:
+ *                    x = get_insertion(V, k + 1, offset, size)             # <<<<<<<<<<<<<<
+ *               elif k == d:
+ *                    x = get_deletion(V, k - 1, offset, size) + 1
  */
-      __pyx_t_3 = PyInt_FromSsize_t((__pyx_v_k + 1)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 101, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_2 = (__Pyx_PyDict_ContainsTF(__pyx_t_3, __pyx_v_V, Py_EQ)); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 101, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (__pyx_t_2) {
-        __pyx_t_3 = PyInt_FromSsize_t((__pyx_v_k + 1)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 101, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_V, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 101, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_1);
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_13 = __Pyx_PyIndex_AsSsize_t(__pyx_t_1); if (unlikely((__pyx_t_13 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_12 = __pyx_t_13;
-      } else {
-        __pyx_t_12 = -1L;
-      }
-      __pyx_v_v_kp = __pyx_t_12;
+        __pyx_t_14 = __pyx_f_5diffr_10algorithms_8myers_cy_get_insertion(__pyx_v_V, (__pyx_v_k + 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_14 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 119, __pyx_L1_error)
+        __pyx_v_x = __pyx_t_14;
 
-      /* "diffr/algorithms/myers_cy.pyx":104
- * 
- *             # Choose direction: insert or delete
- *             if k == -d or (k != d and v_km < v_kp):             # <<<<<<<<<<<<<<
- *                 x = V.get(k + 1, 0)  # Insert: take x from k + 1
- *             else:
+        /* "diffr/algorithms/myers_cy.pyx":118
+ *          for k in range(-d, d + 1, 2):
+ *               k_index = k + offset
+ *               if k == -d:             # <<<<<<<<<<<<<<
+ *                    x = get_insertion(V, k + 1, offset, size)
+ *               elif k == d:
  */
-      __pyx_t_5 = (__pyx_v_k == (-__pyx_v_d));
-      if (!__pyx_t_5) {
-      } else {
-        __pyx_t_2 = __pyx_t_5;
-        goto __pyx_L27_bool_binop_done;
+        goto __pyx_L50;
       }
-      __pyx_t_5 = (__pyx_v_k != __pyx_v_d);
-      if (__pyx_t_5) {
-      } else {
-        __pyx_t_2 = __pyx_t_5;
-        goto __pyx_L27_bool_binop_done;
-      }
-      __pyx_t_5 = (__pyx_v_v_km < __pyx_v_v_kp);
-      __pyx_t_2 = __pyx_t_5;
-      __pyx_L27_bool_binop_done:;
+
+      /* "diffr/algorithms/myers_cy.pyx":120
+ *               if k == -d:
+ *                    x = get_insertion(V, k + 1, offset, size)
+ *               elif k == d:             # <<<<<<<<<<<<<<
+ *                    x = get_deletion(V, k - 1, offset, size) + 1
+ *               else:
+ */
+      __pyx_t_2 = (__pyx_v_k == __pyx_v_d);
       if (__pyx_t_2) {
 
-        /* "diffr/algorithms/myers_cy.pyx":105
- *             # Choose direction: insert or delete
- *             if k == -d or (k != d and v_km < v_kp):
- *                 x = V.get(k + 1, 0)  # Insert: take x from k + 1             # <<<<<<<<<<<<<<
- *             else:
- *                 x = V.get(k - 1, 0) + 1  # Delete: take x from k - 1 and advance
+        /* "diffr/algorithms/myers_cy.pyx":121
+ *                    x = get_insertion(V, k + 1, offset, size)
+ *               elif k == d:
+ *                    x = get_deletion(V, k - 1, offset, size) + 1             # <<<<<<<<<<<<<<
+ *               else:
+ *                    if get_deletion(V, k - 1, offset, size) < get_deletion(V, k + 1, offset, size):
  */
-        __pyx_t_1 = PyInt_FromSsize_t((__pyx_v_k + 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_3 = __Pyx_PyDict_GetItemDefault(__pyx_v_V, __pyx_t_1, __pyx_int_0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 105, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_12 = __Pyx_PyIndex_AsSsize_t(__pyx_t_3); if (unlikely((__pyx_t_12 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 105, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_v_x = __pyx_t_12;
+        __pyx_t_14 = __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(__pyx_v_V, (__pyx_v_k - 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_14 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 121, __pyx_L1_error)
+        __pyx_v_x = (__pyx_t_14 + 1);
 
-        /* "diffr/algorithms/myers_cy.pyx":104
- * 
- *             # Choose direction: insert or delete
- *             if k == -d or (k != d and v_km < v_kp):             # <<<<<<<<<<<<<<
- *                 x = V.get(k + 1, 0)  # Insert: take x from k + 1
- *             else:
+        /* "diffr/algorithms/myers_cy.pyx":120
+ *               if k == -d:
+ *                    x = get_insertion(V, k + 1, offset, size)
+ *               elif k == d:             # <<<<<<<<<<<<<<
+ *                    x = get_deletion(V, k - 1, offset, size) + 1
+ *               else:
  */
-        goto __pyx_L26;
+        goto __pyx_L50;
       }
 
-      /* "diffr/algorithms/myers_cy.pyx":107
- *                 x = V.get(k + 1, 0)  # Insert: take x from k + 1
- *             else:
- *                 x = V.get(k - 1, 0) + 1  # Delete: take x from k - 1 and advance             # <<<<<<<<<<<<<<
- *             y = x - k
- * 
+      /* "diffr/algorithms/myers_cy.pyx":123
+ *                    x = get_deletion(V, k - 1, offset, size) + 1
+ *               else:
+ *                    if get_deletion(V, k - 1, offset, size) < get_deletion(V, k + 1, offset, size):             # <<<<<<<<<<<<<<
+ *                         x = get_insertion(V, k + 1, offset, size)
+ *                    else:
  */
       /*else*/ {
-        __pyx_t_3 = PyInt_FromSsize_t((__pyx_v_k - 1)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_V, __pyx_t_3, __pyx_int_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_1);
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_3 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_12 = __Pyx_PyIndex_AsSsize_t(__pyx_t_3); if (unlikely((__pyx_t_12 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 107, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_v_x = __pyx_t_12;
-      }
-      __pyx_L26:;
+        __pyx_t_14 = __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(__pyx_v_V, (__pyx_v_k - 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_14 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 123, __pyx_L1_error)
+        __pyx_t_15 = __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(__pyx_v_V, (__pyx_v_k + 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_15 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 123, __pyx_L1_error)
+        __pyx_t_2 = (__pyx_t_14 < __pyx_t_15);
+        if (__pyx_t_2) {
 
-      /* "diffr/algorithms/myers_cy.pyx":108
- *             else:
- *                 x = V.get(k - 1, 0) + 1  # Delete: take x from k - 1 and advance
- *             y = x - k             # <<<<<<<<<<<<<<
- * 
- *             # Snake forward over matching words
+          /* "diffr/algorithms/myers_cy.pyx":124
+ *               else:
+ *                    if get_deletion(V, k - 1, offset, size) < get_deletion(V, k + 1, offset, size):
+ *                         x = get_insertion(V, k + 1, offset, size)             # <<<<<<<<<<<<<<
+ *                    else:
+ *                         x = get_deletion(V, k - 1, offset, size) + 1
+ */
+          __pyx_t_15 = __pyx_f_5diffr_10algorithms_8myers_cy_get_insertion(__pyx_v_V, (__pyx_v_k + 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_15 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L1_error)
+          __pyx_v_x = __pyx_t_15;
+
+          /* "diffr/algorithms/myers_cy.pyx":123
+ *                    x = get_deletion(V, k - 1, offset, size) + 1
+ *               else:
+ *                    if get_deletion(V, k - 1, offset, size) < get_deletion(V, k + 1, offset, size):             # <<<<<<<<<<<<<<
+ *                         x = get_insertion(V, k + 1, offset, size)
+ *                    else:
+ */
+          goto __pyx_L51;
+        }
+
+        /* "diffr/algorithms/myers_cy.pyx":126
+ *                         x = get_insertion(V, k + 1, offset, size)
+ *                    else:
+ *                         x = get_deletion(V, k - 1, offset, size) + 1             # <<<<<<<<<<<<<<
+ *               y = x - k
+ *               while x < N and y < M and words1[x] == words2[y]:
+ */
+        /*else*/ {
+          __pyx_t_15 = __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(__pyx_v_V, (__pyx_v_k - 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_15 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L1_error)
+          __pyx_v_x = (__pyx_t_15 + 1);
+        }
+        __pyx_L51:;
+      }
+      __pyx_L50:;
+
+      /* "diffr/algorithms/myers_cy.pyx":127
+ *                    else:
+ *                         x = get_deletion(V, k - 1, offset, size) + 1
+ *               y = x - k             # <<<<<<<<<<<<<<
+ *               while x < N and y < M and words1[x] == words2[y]:
+ *                    x += 1
  */
       __pyx_v_y = (__pyx_v_x - __pyx_v_k);
 
-      /* "diffr/algorithms/myers_cy.pyx":111
- * 
- *             # Snake forward over matching words
- *             while x < N and y < M and words1[x] == words2[y]:             # <<<<<<<<<<<<<<
- *                 x += 1
- *                 y += 1
+      /* "diffr/algorithms/myers_cy.pyx":128
+ *                         x = get_deletion(V, k - 1, offset, size) + 1
+ *               y = x - k
+ *               while x < N and y < M and words1[x] == words2[y]:             # <<<<<<<<<<<<<<
+ *                    x += 1
+ *                    y += 1
  */
       while (1) {
         __pyx_t_5 = (__pyx_v_x < __pyx_v_N);
         if (__pyx_t_5) {
         } else {
           __pyx_t_2 = __pyx_t_5;
-          goto __pyx_L32_bool_binop_done;
+          goto __pyx_L54_bool_binop_done;
         }
         __pyx_t_5 = (__pyx_v_y < __pyx_v_M);
         if (__pyx_t_5) {
         } else {
           __pyx_t_2 = __pyx_t_5;
-          goto __pyx_L32_bool_binop_done;
+          goto __pyx_L54_bool_binop_done;
         }
         if (unlikely(__pyx_v_words1 == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          __PYX_ERR(0, 111, __pyx_L1_error)
+          __PYX_ERR(0, 128, __pyx_L1_error)
         }
         if (unlikely(__pyx_v_words2 == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          __PYX_ERR(0, 111, __pyx_L1_error)
+          __PYX_ERR(0, 128, __pyx_L1_error)
         }
-        __pyx_t_3 = PyObject_RichCompare(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x), PyList_GET_ITEM(__pyx_v_words2, __pyx_v_y), Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 111, __pyx_L1_error)
-        __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 111, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __pyx_t_1 = PyObject_RichCompare(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x), PyList_GET_ITEM(__pyx_v_words2, __pyx_v_y), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 128, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 128, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_2 = __pyx_t_5;
-        __pyx_L32_bool_binop_done:;
+        __pyx_L54_bool_binop_done:;
         if (!__pyx_t_2) break;
 
-        /* "diffr/algorithms/myers_cy.pyx":112
- *             # Snake forward over matching words
- *             while x < N and y < M and words1[x] == words2[y]:
- *                 x += 1             # <<<<<<<<<<<<<<
- *                 y += 1
- *             current_V[k] = x
+        /* "diffr/algorithms/myers_cy.pyx":129
+ *               y = x - k
+ *               while x < N and y < M and words1[x] == words2[y]:
+ *                    x += 1             # <<<<<<<<<<<<<<
+ *                    y += 1
+ *               current_V[k_index] = x
  */
         __pyx_v_x = (__pyx_v_x + 1);
 
-        /* "diffr/algorithms/myers_cy.pyx":113
- *             while x < N and y < M and words1[x] == words2[y]:
- *                 x += 1
- *                 y += 1             # <<<<<<<<<<<<<<
- *             current_V[k] = x
- * 
+        /* "diffr/algorithms/myers_cy.pyx":130
+ *               while x < N and y < M and words1[x] == words2[y]:
+ *                    x += 1
+ *                    y += 1             # <<<<<<<<<<<<<<
+ *               current_V[k_index] = x
+ *               if x >= N and y >= M:
  */
         __pyx_v_y = (__pyx_v_y + 1);
       }
 
-      /* "diffr/algorithms/myers_cy.pyx":114
- *                 x += 1
- *                 y += 1
- *             current_V[k] = x             # <<<<<<<<<<<<<<
- * 
- *             # If end is reached, backtrack
+      /* "diffr/algorithms/myers_cy.pyx":131
+ *                    x += 1
+ *                    y += 1
+ *               current_V[k_index] = x             # <<<<<<<<<<<<<<
+ *               if x >= N and y >= M:
+ *                    trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
  */
-      __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 114, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_1 = PyInt_FromSsize_t(__pyx_v_k); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      if (unlikely((PyDict_SetItem(__pyx_v_current_V, __pyx_t_1, __pyx_t_3) < 0))) __PYX_ERR(0, 114, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      (__pyx_v_current_V[__pyx_v_k_index]) = __pyx_v_x;
 
-      /* "diffr/algorithms/myers_cy.pyx":117
- * 
- *             # If end is reached, backtrack
- *             if x >= N and y >= M:             # <<<<<<<<<<<<<<
- *                 trace.append(current_V)
- *                 return _backtrack(words1, words2, trace)
+      /* "diffr/algorithms/myers_cy.pyx":132
+ *                    y += 1
+ *               current_V[k_index] = x
+ *               if x >= N and y >= M:             # <<<<<<<<<<<<<<
+ *                    trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+ *                    return _backtrack_fast(words1, words2, trace, offset, size)
  */
       __pyx_t_5 = (__pyx_v_x >= __pyx_v_N);
       if (__pyx_t_5) {
       } else {
         __pyx_t_2 = __pyx_t_5;
-        goto __pyx_L36_bool_binop_done;
+        goto __pyx_L58_bool_binop_done;
       }
       __pyx_t_5 = (__pyx_v_y >= __pyx_v_M);
       __pyx_t_2 = __pyx_t_5;
-      __pyx_L36_bool_binop_done:;
+      __pyx_L58_bool_binop_done:;
       if (__pyx_t_2) {
 
-        /* "diffr/algorithms/myers_cy.pyx":118
- *             # If end is reached, backtrack
- *             if x >= N and y >= M:
- *                 trace.append(current_V)             # <<<<<<<<<<<<<<
- *                 return _backtrack(words1, words2, trace)
- * 
+        /* "diffr/algorithms/myers_cy.pyx":133
+ *               current_V[k_index] = x
+ *               if x >= N and y >= M:
+ *                    trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))             # <<<<<<<<<<<<<<
+ *                    return _backtrack_fast(words1, words2, trace, offset, size)
+ *          trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
  */
-        __pyx_t_14 = __Pyx_PyList_Append(__pyx_v_trace, __pyx_v_current_V); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 118, __pyx_L1_error)
+        __pyx_t_1 = PyCapsule_New(__pyx_v_current_V, ((char const *)"V_ptr"), NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_trace, __pyx_t_1); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 133, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "diffr/algorithms/myers_cy.pyx":119
- *             if x >= N and y >= M:
- *                 trace.append(current_V)
- *                 return _backtrack(words1, words2, trace)             # <<<<<<<<<<<<<<
- * 
- *         trace.append(current_V)
+        /* "diffr/algorithms/myers_cy.pyx":134
+ *               if x >= N and y >= M:
+ *                    trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+ *                    return _backtrack_fast(words1, words2, trace, offset, size)             # <<<<<<<<<<<<<<
+ *          trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+ *          V = current_V  # use the new V for next iteration
  */
         __Pyx_XDECREF(__pyx_r);
-        __pyx_t_3 = __pyx_f_5diffr_10algorithms_8myers_cy__backtrack(__pyx_v_words1, __pyx_v_words2, __pyx_v_trace, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 119, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __pyx_r = ((PyObject*)__pyx_t_3);
-        __pyx_t_3 = 0;
+        __pyx_t_1 = __pyx_f_5diffr_10algorithms_8myers_cy__backtrack_fast(__pyx_v_words1, __pyx_v_words2, __pyx_v_trace, __pyx_v_offset, __pyx_v_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 134, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_r = ((PyObject*)__pyx_t_1);
+        __pyx_t_1 = 0;
         goto __pyx_L0;
 
-        /* "diffr/algorithms/myers_cy.pyx":117
- * 
- *             # If end is reached, backtrack
- *             if x >= N and y >= M:             # <<<<<<<<<<<<<<
- *                 trace.append(current_V)
- *                 return _backtrack(words1, words2, trace)
+        /* "diffr/algorithms/myers_cy.pyx":132
+ *                    y += 1
+ *               current_V[k_index] = x
+ *               if x >= N and y >= M:             # <<<<<<<<<<<<<<
+ *                    trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+ *                    return _backtrack_fast(words1, words2, trace, offset, size)
  */
       }
     }
 
-    /* "diffr/algorithms/myers_cy.pyx":121
- *                 return _backtrack(words1, words2, trace)
- * 
- *         trace.append(current_V)             # <<<<<<<<<<<<<<
- *         V = current_V
- * 
+    /* "diffr/algorithms/myers_cy.pyx":135
+ *                    trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+ *                    return _backtrack_fast(words1, words2, trace, offset, size)
+ *          trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))             # <<<<<<<<<<<<<<
+ *          V = current_V  # use the new V for next iteration
+ *     return _backtrack_fast(words1, words2, trace, offset, size)
  */
-    __pyx_t_14 = __Pyx_PyList_Append(__pyx_v_trace, __pyx_v_current_V); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_1 = PyCapsule_New(__pyx_v_current_V, ((char const *)"V_ptr"), NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_trace, __pyx_t_1); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 135, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "diffr/algorithms/myers_cy.pyx":122
- * 
- *         trace.append(current_V)
- *         V = current_V             # <<<<<<<<<<<<<<
- * 
+    /* "diffr/algorithms/myers_cy.pyx":136
+ *                    return _backtrack_fast(words1, words2, trace, offset, size)
+ *          trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+ *          V = current_V  # use the new V for next iteration             # <<<<<<<<<<<<<<
+ *     return _backtrack_fast(words1, words2, trace, offset, size)
  * 
  */
-    __Pyx_INCREF(__pyx_v_current_V);
-    __Pyx_DECREF_SET(__pyx_v_V, __pyx_v_current_V);
+    __pyx_v_V = __pyx_v_current_V;
   }
 
-  /* "diffr/algorithms/myers_cy.pyx":69
+  /* "diffr/algorithms/myers_cy.pyx":137
+ *          trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+ *          V = current_V  # use the new V for next iteration
+ *     return _backtrack_fast(words1, words2, trace, offset, size)             # <<<<<<<<<<<<<<
+ * 
+ * cdef list _backtrack_fast(list words1, list words2, list trace, int offset, Py_ssize_t size):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __pyx_f_5diffr_10algorithms_8myers_cy__backtrack_fast(__pyx_v_words1, __pyx_v_words2, __pyx_v_trace, __pyx_v_offset, __pyx_v_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "diffr/algorithms/myers_cy.pyx":57
  * 
  * @cython.final
  * cpdef list[tuple[str, str]] diff_line(str original, str updated):             # <<<<<<<<<<<<<<
- *     # Tokenize input strings into lists of words
- *     cdef list[str] words1 = tokenize(original) if original else []
+ *     """
+ *     A fast Myers diff that uses C arrays (wrapped in PyCapsules) for the diagonal map.
  */
 
   /* function exit code */
-  __pyx_r = ((PyObject*)Py_None); __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_3);
@@ -3710,11 +4037,11 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy_diff_line(PyObject *__pyx
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_words1);
   __Pyx_XDECREF(__pyx_v_words2);
-  __Pyx_XDECREF(__pyx_v_V);
   __Pyx_XDECREF(__pyx_v_trace);
-  __Pyx_XDECREF(__pyx_v_current_V);
-  __Pyx_XDECREF(__pyx_7genexpr__pyx_v_word);
-  __Pyx_XDECREF(__pyx_8genexpr1__pyx_v_word);
+  __Pyx_XDECREF(__pyx_v_capsule);
+  __Pyx_XDECREF(__pyx_7genexpr__pyx_v_w);
+  __Pyx_XDECREF(__pyx_8genexpr1__pyx_v_w);
+  __Pyx_XDECREF(__pyx_8genexpr2__pyx_v_token);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -3728,7 +4055,8 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_5diffr_10algorithms_8myers_cy_3diff_line = {"diff_line", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_5diffr_10algorithms_8myers_cy_3diff_line, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+PyDoc_STRVAR(__pyx_doc_5diffr_10algorithms_8myers_cy_2diff_line, "\n    A fast Myers diff that uses C arrays (wrapped in PyCapsules) for the diagonal map.\n    This version first advances an initial snake (d=0) so that matching tokens at\n    the beginning (like \"result\") are marked as equal.\n    ");
+static PyMethodDef __pyx_mdef_5diffr_10algorithms_8myers_cy_3diff_line = {"diff_line", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_5diffr_10algorithms_8myers_cy_3diff_line, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_5diffr_10algorithms_8myers_cy_2diff_line};
 static PyObject *__pyx_pw_5diffr_10algorithms_8myers_cy_3diff_line(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
@@ -3776,7 +4104,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 57, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -3784,14 +4112,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 57, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("diff_line", 1, 2, 2, 1); __PYX_ERR(0, 69, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("diff_line", 1, 2, 2, 1); __PYX_ERR(0, 57, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "diff_line") < 0)) __PYX_ERR(0, 69, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "diff_line") < 0)) __PYX_ERR(0, 57, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -3804,7 +4132,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("diff_line", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 69, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("diff_line", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 57, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3818,8 +4146,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_original), (&PyUnicode_Type), 1, "original", 1))) __PYX_ERR(0, 69, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_updated), (&PyUnicode_Type), 1, "updated", 1))) __PYX_ERR(0, 69, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_original), (&PyUnicode_Type), 1, "original", 1))) __PYX_ERR(0, 57, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_updated), (&PyUnicode_Type), 1, "updated", 1))) __PYX_ERR(0, 57, __pyx_L1_error)
   __pyx_r = __pyx_pf_5diffr_10algorithms_8myers_cy_2diff_line(__pyx_self, __pyx_v_original, __pyx_v_updated);
 
   /* function exit code */
@@ -3846,7 +4174,7 @@ static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_2diff_line(CYTHON_UNUSED
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("diff_line", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5diffr_10algorithms_8myers_cy_diff_line(__pyx_v_original, __pyx_v_updated, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5diffr_10algorithms_8myers_cy_diff_line(__pyx_v_original, __pyx_v_updated, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3863,523 +4191,544 @@ static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_2diff_line(CYTHON_UNUSED
   return __pyx_r;
 }
 
-/* "diffr/algorithms/myers_cy.pyx":126
+/* "diffr/algorithms/myers_cy.pyx":139
+ *     return _backtrack_fast(words1, words2, trace, offset, size)
  * 
- * @cython.final
- * cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):             # <<<<<<<<<<<<<<
- *     cdef list[tuple[str, str]] script = []
- *     cdef Py_ssize_t x = len(words1)
+ * cdef list _backtrack_fast(list words1, list words2, list trace, int offset, Py_ssize_t size):             # <<<<<<<<<<<<<<
+ *     """
+ *     Backtracks over the stored V arrays (extracted from PyCapsules) to reconstruct
  */
 
-static PyObject *__pyx_pw_5diffr_10algorithms_8myers_cy_5_backtrack(PyObject *__pyx_self, 
-#if CYTHON_METH_FASTCALL
-PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
-#else
-PyObject *__pyx_args, PyObject *__pyx_kwds
-#endif
-); /*proto*/
-static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy__backtrack(PyObject *__pyx_v_words1, PyObject *__pyx_v_words2, PyObject *__pyx_v_trace, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy__backtrack_fast(PyObject *__pyx_v_words1, PyObject *__pyx_v_words2, PyObject *__pyx_v_trace, int __pyx_v_offset, Py_ssize_t __pyx_v_size) {
   PyObject *__pyx_v_script = 0;
   Py_ssize_t __pyx_v_x;
   Py_ssize_t __pyx_v_y;
-  PyObject *__pyx_v_v = 0;
+  Py_ssize_t __pyx_v_n_trace;
   Py_ssize_t __pyx_v_d;
   Py_ssize_t __pyx_v_k;
   Py_ssize_t __pyx_v_prev_k;
   Py_ssize_t __pyx_v_prev_x;
   Py_ssize_t __pyx_v_prev_y;
-  PyObject *__pyx_v_op = 0;
+  Py_ssize_t __pyx_v_snake_len;
+  CYTHON_UNUSED Py_ssize_t __pyx_v_i;
+  int *__pyx_v_v;
+  int __pyx_v_left;
+  int __pyx_v_right;
+  int __pyx_v_is_insert;
+  PyObject *__pyx_v_capsule = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   Py_ssize_t __pyx_t_2;
   Py_ssize_t __pyx_t_3;
-  Py_ssize_t __pyx_t_4;
+  void *__pyx_t_4;
   int __pyx_t_5;
   int __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
-  PyObject *__pyx_t_8 = NULL;
-  int __pyx_t_9;
+  int __pyx_t_7;
+  Py_ssize_t __pyx_t_8;
+  Py_ssize_t __pyx_t_9;
+  int __pyx_t_10;
+  PyObject *__pyx_t_11 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("_backtrack", 1);
+  __Pyx_RefNannySetupContext("_backtrack_fast", 1);
 
-  /* "diffr/algorithms/myers_cy.pyx":127
- * @cython.final
- * cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):
- *     cdef list[tuple[str, str]] script = []             # <<<<<<<<<<<<<<
+  /* "diffr/algorithms/myers_cy.pyx":144
+ *     the edit script. Each V array is freed exactly once.
+ *     """
+ *     cdef list script = []             # <<<<<<<<<<<<<<
  *     cdef Py_ssize_t x = len(words1)
  *     cdef Py_ssize_t y = len(words2)
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_script = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "diffr/algorithms/myers_cy.pyx":128
- * cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):
- *     cdef list[tuple[str, str]] script = []
+  /* "diffr/algorithms/myers_cy.pyx":145
+ *     """
+ *     cdef list script = []
  *     cdef Py_ssize_t x = len(words1)             # <<<<<<<<<<<<<<
  *     cdef Py_ssize_t y = len(words2)
- * 
+ *     cdef Py_ssize_t n_trace = len(trace)
  */
   if (unlikely(__pyx_v_words1 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 128, __pyx_L1_error)
+    __PYX_ERR(0, 145, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyList_GET_SIZE(__pyx_v_words1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyList_GET_SIZE(__pyx_v_words1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 145, __pyx_L1_error)
   __pyx_v_x = __pyx_t_2;
 
-  /* "diffr/algorithms/myers_cy.pyx":129
- *     cdef list[tuple[str, str]] script = []
+  /* "diffr/algorithms/myers_cy.pyx":146
+ *     cdef list script = []
  *     cdef Py_ssize_t x = len(words1)
  *     cdef Py_ssize_t y = len(words2)             # <<<<<<<<<<<<<<
- * 
- *     cdef dict[int, int] v
+ *     cdef Py_ssize_t n_trace = len(trace)
+ *     cdef Py_ssize_t d, k, prev_k, prev_x, prev_y, snake_len, i
  */
   if (unlikely(__pyx_v_words2 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 129, __pyx_L1_error)
+    __PYX_ERR(0, 146, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyList_GET_SIZE(__pyx_v_words2); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyList_GET_SIZE(__pyx_v_words2); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 146, __pyx_L1_error)
   __pyx_v_y = __pyx_t_2;
 
-  /* "diffr/algorithms/myers_cy.pyx":136
- * 
- *     # Backward pass: Reconstruct the edit script
- *     for d in range(len(trace) - 1, 0, -1):             # <<<<<<<<<<<<<<
- *         v = trace[d - 1]
- *         k = x - y
+  /* "diffr/algorithms/myers_cy.pyx":147
+ *     cdef Py_ssize_t x = len(words1)
+ *     cdef Py_ssize_t y = len(words2)
+ *     cdef Py_ssize_t n_trace = len(trace)             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t d, k, prev_k, prev_x, prev_y, snake_len, i
+ *     cdef int* v
  */
   if (unlikely(__pyx_v_trace == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 136, __pyx_L1_error)
+    __PYX_ERR(0, 147, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyList_GET_SIZE(__pyx_v_trace); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 136, __pyx_L1_error)
-  for (__pyx_t_3 = (__pyx_t_2 - 1); __pyx_t_3 > 0; __pyx_t_3-=1) {
-    __pyx_v_d = __pyx_t_3;
+  __pyx_t_2 = __Pyx_PyList_GET_SIZE(__pyx_v_trace); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_v_n_trace = __pyx_t_2;
 
-    /* "diffr/algorithms/myers_cy.pyx":137
- *     # Backward pass: Reconstruct the edit script
- *     for d in range(len(trace) - 1, 0, -1):
- *         v = trace[d - 1]             # <<<<<<<<<<<<<<
- *         k = x - y
+  /* "diffr/algorithms/myers_cy.pyx":153
+ *     cdef bint is_insert
  * 
+ *     for d in range(n_trace - 1, 0, -1):             # <<<<<<<<<<<<<<
+ *          v = <int*> PyCapsule_GetPointer(trace[d - 1], b"V_ptr")
+ *          k = x - y
+ */
+  for (__pyx_t_2 = (__pyx_v_n_trace - 1); __pyx_t_2 > 0; __pyx_t_2-=1) {
+    __pyx_v_d = __pyx_t_2;
+
+    /* "diffr/algorithms/myers_cy.pyx":154
+ * 
+ *     for d in range(n_trace - 1, 0, -1):
+ *          v = <int*> PyCapsule_GetPointer(trace[d - 1], b"V_ptr")             # <<<<<<<<<<<<<<
+ *          k = x - y
+ *          left = get_deletion(v, k - 1, offset, size)
  */
     if (unlikely(__pyx_v_trace == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 137, __pyx_L1_error)
+      __PYX_ERR(0, 154, __pyx_L1_error)
     }
-    __pyx_t_4 = (__pyx_v_d - 1);
-    if (!(likely(PyDict_CheckExact(PyList_GET_ITEM(__pyx_v_trace, __pyx_t_4)))||((PyList_GET_ITEM(__pyx_v_trace, __pyx_t_4)) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", PyList_GET_ITEM(__pyx_v_trace, __pyx_t_4)))) __PYX_ERR(0, 137, __pyx_L1_error)
-    __pyx_t_1 = PyList_GET_ITEM(__pyx_v_trace, __pyx_t_4);
+    __pyx_t_3 = (__pyx_v_d - 1);
+    __pyx_t_1 = PyList_GET_ITEM(__pyx_v_trace, __pyx_t_3);
     __Pyx_INCREF(__pyx_t_1);
-    __Pyx_XDECREF_SET(__pyx_v_v, ((PyObject*)__pyx_t_1));
-    __pyx_t_1 = 0;
+    __pyx_t_4 = PyCapsule_GetPointer(__pyx_t_1, ((char const *)"V_ptr")); if (unlikely(__pyx_t_4 == ((void *)NULL) && PyErr_Occurred())) __PYX_ERR(0, 154, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_v_v = ((int *)__pyx_t_4);
 
-    /* "diffr/algorithms/myers_cy.pyx":138
- *     for d in range(len(trace) - 1, 0, -1):
- *         v = trace[d - 1]
- *         k = x - y             # <<<<<<<<<<<<<<
- * 
- *         # Determine previous step: insert or delete
+    /* "diffr/algorithms/myers_cy.pyx":155
+ *     for d in range(n_trace - 1, 0, -1):
+ *          v = <int*> PyCapsule_GetPointer(trace[d - 1], b"V_ptr")
+ *          k = x - y             # <<<<<<<<<<<<<<
+ *          left = get_deletion(v, k - 1, offset, size)
+ *          right = get_deletion(v, k + 1, offset, size)
  */
     __pyx_v_k = (__pyx_v_x - __pyx_v_y);
 
-    /* "diffr/algorithms/myers_cy.pyx":141
- * 
- *         # Determine previous step: insert or delete
- *         if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):             # <<<<<<<<<<<<<<
- *             prev_k = k + 1
- *             prev_x = v.get(prev_k, 0)
+    /* "diffr/algorithms/myers_cy.pyx":156
+ *          v = <int*> PyCapsule_GetPointer(trace[d - 1], b"V_ptr")
+ *          k = x - y
+ *          left = get_deletion(v, k - 1, offset, size)             # <<<<<<<<<<<<<<
+ *          right = get_deletion(v, k + 1, offset, size)
+ *          if k == -d or (k != d and left < right):
  */
-    __pyx_t_6 = (__pyx_v_k == (-__pyx_v_d));
-    if (!__pyx_t_6) {
-    } else {
-      __pyx_t_5 = __pyx_t_6;
-      goto __pyx_L6_bool_binop_done;
-    }
-    __pyx_t_6 = (__pyx_v_k != __pyx_v_d);
-    if (__pyx_t_6) {
-    } else {
-      __pyx_t_5 = __pyx_t_6;
-      goto __pyx_L6_bool_binop_done;
-    }
-    if (unlikely(__pyx_v_v == Py_None)) {
-      PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "get");
-      __PYX_ERR(0, 141, __pyx_L1_error)
-    }
-    __pyx_t_1 = PyInt_FromSsize_t((__pyx_v_k - 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = __Pyx_PyDict_GetItemDefault(__pyx_v_v, __pyx_t_1, __pyx_int_neg_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 141, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(__pyx_v_v == Py_None)) {
-      PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "get");
-      __PYX_ERR(0, 141, __pyx_L1_error)
-    }
-    __pyx_t_1 = PyInt_FromSsize_t((__pyx_v_k + 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_8 = __Pyx_PyDict_GetItemDefault(__pyx_v_v, __pyx_t_1, __pyx_int_neg_1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 141, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyObject_RichCompare(__pyx_t_7, __pyx_t_8, Py_LT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 141, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_5 = __pyx_t_6;
-    __pyx_L6_bool_binop_done:;
-    if (__pyx_t_5) {
+    __pyx_t_5 = __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(__pyx_v_v, (__pyx_v_k - 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_5 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 156, __pyx_L1_error)
+    __pyx_v_left = __pyx_t_5;
 
-      /* "diffr/algorithms/myers_cy.pyx":142
- *         # Determine previous step: insert or delete
- *         if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):
- *             prev_k = k + 1             # <<<<<<<<<<<<<<
- *             prev_x = v.get(prev_k, 0)
- *             prev_y = prev_x - prev_k
+    /* "diffr/algorithms/myers_cy.pyx":157
+ *          k = x - y
+ *          left = get_deletion(v, k - 1, offset, size)
+ *          right = get_deletion(v, k + 1, offset, size)             # <<<<<<<<<<<<<<
+ *          if k == -d or (k != d and left < right):
+ *               prev_k = k + 1
+ */
+    __pyx_t_5 = __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(__pyx_v_v, (__pyx_v_k + 1), __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_5 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L1_error)
+    __pyx_v_right = __pyx_t_5;
+
+    /* "diffr/algorithms/myers_cy.pyx":158
+ *          left = get_deletion(v, k - 1, offset, size)
+ *          right = get_deletion(v, k + 1, offset, size)
+ *          if k == -d or (k != d and left < right):             # <<<<<<<<<<<<<<
+ *               prev_k = k + 1
+ *               prev_x = get_insertion(v, prev_k, offset, size)
+ */
+    __pyx_t_7 = (__pyx_v_k == (-__pyx_v_d));
+    if (!__pyx_t_7) {
+    } else {
+      __pyx_t_6 = __pyx_t_7;
+      goto __pyx_L6_bool_binop_done;
+    }
+    __pyx_t_7 = (__pyx_v_k != __pyx_v_d);
+    if (__pyx_t_7) {
+    } else {
+      __pyx_t_6 = __pyx_t_7;
+      goto __pyx_L6_bool_binop_done;
+    }
+    __pyx_t_7 = (__pyx_v_left < __pyx_v_right);
+    __pyx_t_6 = __pyx_t_7;
+    __pyx_L6_bool_binop_done:;
+    if (__pyx_t_6) {
+
+      /* "diffr/algorithms/myers_cy.pyx":159
+ *          right = get_deletion(v, k + 1, offset, size)
+ *          if k == -d or (k != d and left < right):
+ *               prev_k = k + 1             # <<<<<<<<<<<<<<
+ *               prev_x = get_insertion(v, prev_k, offset, size)
+ *               is_insert = True
  */
       __pyx_v_prev_k = (__pyx_v_k + 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":143
- *         if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):
- *             prev_k = k + 1
- *             prev_x = v.get(prev_k, 0)             # <<<<<<<<<<<<<<
- *             prev_y = prev_x - prev_k
- *             op = "insert"
+      /* "diffr/algorithms/myers_cy.pyx":160
+ *          if k == -d or (k != d and left < right):
+ *               prev_k = k + 1
+ *               prev_x = get_insertion(v, prev_k, offset, size)             # <<<<<<<<<<<<<<
+ *               is_insert = True
+ *          else:
  */
-      if (unlikely(__pyx_v_v == Py_None)) {
-        PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "get");
-        __PYX_ERR(0, 143, __pyx_L1_error)
-      }
-      __pyx_t_1 = PyInt_FromSsize_t(__pyx_v_prev_k); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_8 = __Pyx_PyDict_GetItemDefault(__pyx_v_v, __pyx_t_1, __pyx_int_0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 143, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_4 = __Pyx_PyIndex_AsSsize_t(__pyx_t_8); if (unlikely((__pyx_t_4 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 143, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_v_prev_x = __pyx_t_4;
+      __pyx_t_5 = __pyx_f_5diffr_10algorithms_8myers_cy_get_insertion(__pyx_v_v, __pyx_v_prev_k, __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_5 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
+      __pyx_v_prev_x = __pyx_t_5;
 
-      /* "diffr/algorithms/myers_cy.pyx":144
- *             prev_k = k + 1
- *             prev_x = v.get(prev_k, 0)
- *             prev_y = prev_x - prev_k             # <<<<<<<<<<<<<<
- *             op = "insert"
- *         else:
+      /* "diffr/algorithms/myers_cy.pyx":161
+ *               prev_k = k + 1
+ *               prev_x = get_insertion(v, prev_k, offset, size)
+ *               is_insert = True             # <<<<<<<<<<<<<<
+ *          else:
+ *               prev_k = k - 1
  */
-      __pyx_v_prev_y = (__pyx_v_prev_x - __pyx_v_prev_k);
+      __pyx_v_is_insert = 1;
 
-      /* "diffr/algorithms/myers_cy.pyx":145
- *             prev_x = v.get(prev_k, 0)
- *             prev_y = prev_x - prev_k
- *             op = "insert"             # <<<<<<<<<<<<<<
- *         else:
- *             prev_k = k - 1
- */
-      __Pyx_INCREF(__pyx_n_u_insert);
-      __Pyx_XDECREF_SET(__pyx_v_op, __pyx_n_u_insert);
-
-      /* "diffr/algorithms/myers_cy.pyx":141
- * 
- *         # Determine previous step: insert or delete
- *         if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):             # <<<<<<<<<<<<<<
- *             prev_k = k + 1
- *             prev_x = v.get(prev_k, 0)
+      /* "diffr/algorithms/myers_cy.pyx":158
+ *          left = get_deletion(v, k - 1, offset, size)
+ *          right = get_deletion(v, k + 1, offset, size)
+ *          if k == -d or (k != d and left < right):             # <<<<<<<<<<<<<<
+ *               prev_k = k + 1
+ *               prev_x = get_insertion(v, prev_k, offset, size)
  */
       goto __pyx_L5;
     }
 
-    /* "diffr/algorithms/myers_cy.pyx":147
- *             op = "insert"
- *         else:
- *             prev_k = k - 1             # <<<<<<<<<<<<<<
- *             prev_x = v.get(prev_k, 0) + 1
- *             prev_y = prev_x - prev_k
+    /* "diffr/algorithms/myers_cy.pyx":163
+ *               is_insert = True
+ *          else:
+ *               prev_k = k - 1             # <<<<<<<<<<<<<<
+ *               prev_x = get_deletion(v, prev_k, offset, size) + 1
+ *               is_insert = False
  */
     /*else*/ {
       __pyx_v_prev_k = (__pyx_v_k - 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":148
- *         else:
- *             prev_k = k - 1
- *             prev_x = v.get(prev_k, 0) + 1             # <<<<<<<<<<<<<<
- *             prev_y = prev_x - prev_k
- *             op = "delete"
+      /* "diffr/algorithms/myers_cy.pyx":164
+ *          else:
+ *               prev_k = k - 1
+ *               prev_x = get_deletion(v, prev_k, offset, size) + 1             # <<<<<<<<<<<<<<
+ *               is_insert = False
+ *          prev_y = prev_x - prev_k
  */
-      if (unlikely(__pyx_v_v == Py_None)) {
-        PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "get");
-        __PYX_ERR(0, 148, __pyx_L1_error)
-      }
-      __pyx_t_8 = PyInt_FromSsize_t(__pyx_v_prev_k); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 148, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_v, __pyx_t_8, __pyx_int_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 148, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_4 = __Pyx_PyIndex_AsSsize_t(__pyx_t_8); if (unlikely((__pyx_t_4 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 148, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_v_prev_x = __pyx_t_4;
+      __pyx_t_5 = __pyx_f_5diffr_10algorithms_8myers_cy_get_deletion(__pyx_v_v, __pyx_v_prev_k, __pyx_v_offset, __pyx_v_size); if (unlikely(__pyx_t_5 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 164, __pyx_L1_error)
+      __pyx_v_prev_x = (__pyx_t_5 + 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":149
- *             prev_k = k - 1
- *             prev_x = v.get(prev_k, 0) + 1
- *             prev_y = prev_x - prev_k             # <<<<<<<<<<<<<<
- *             op = "delete"
- * 
+      /* "diffr/algorithms/myers_cy.pyx":165
+ *               prev_k = k - 1
+ *               prev_x = get_deletion(v, prev_k, offset, size) + 1
+ *               is_insert = False             # <<<<<<<<<<<<<<
+ *          prev_y = prev_x - prev_k
+ *          snake_len = (x - prev_x) if (x - prev_x) < (y - prev_y) else (y - prev_y)
  */
-      __pyx_v_prev_y = (__pyx_v_prev_x - __pyx_v_prev_k);
-
-      /* "diffr/algorithms/myers_cy.pyx":150
- *             prev_x = v.get(prev_k, 0) + 1
- *             prev_y = prev_x - prev_k
- *             op = "delete"             # <<<<<<<<<<<<<<
- * 
- *         # Snake back through equal words
- */
-      __Pyx_INCREF(__pyx_n_u_delete);
-      __Pyx_XDECREF_SET(__pyx_v_op, __pyx_n_u_delete);
+      __pyx_v_is_insert = 0;
     }
     __pyx_L5:;
 
-    /* "diffr/algorithms/myers_cy.pyx":153
- * 
- *         # Snake back through equal words
- *         while x > prev_x and y > prev_y:             # <<<<<<<<<<<<<<
- *             x -= 1
- *             y -= 1
+    /* "diffr/algorithms/myers_cy.pyx":166
+ *               prev_x = get_deletion(v, prev_k, offset, size) + 1
+ *               is_insert = False
+ *          prev_y = prev_x - prev_k             # <<<<<<<<<<<<<<
+ *          snake_len = (x - prev_x) if (x - prev_x) < (y - prev_y) else (y - prev_y)
+ *          for i in range(snake_len):
  */
-    while (1) {
-      __pyx_t_6 = (__pyx_v_x > __pyx_v_prev_x);
-      if (__pyx_t_6) {
-      } else {
-        __pyx_t_5 = __pyx_t_6;
-        goto __pyx_L11_bool_binop_done;
-      }
-      __pyx_t_6 = (__pyx_v_y > __pyx_v_prev_y);
-      __pyx_t_5 = __pyx_t_6;
-      __pyx_L11_bool_binop_done:;
-      if (!__pyx_t_5) break;
+    __pyx_v_prev_y = (__pyx_v_prev_x - __pyx_v_prev_k);
 
-      /* "diffr/algorithms/myers_cy.pyx":154
- *         # Snake back through equal words
- *         while x > prev_x and y > prev_y:
- *             x -= 1             # <<<<<<<<<<<<<<
- *             y -= 1
- *             script.append(("equal", words1[x]))
+    /* "diffr/algorithms/myers_cy.pyx":167
+ *               is_insert = False
+ *          prev_y = prev_x - prev_k
+ *          snake_len = (x - prev_x) if (x - prev_x) < (y - prev_y) else (y - prev_y)             # <<<<<<<<<<<<<<
+ *          for i in range(snake_len):
+ *               x -= 1
+ */
+    __pyx_t_6 = ((__pyx_v_x - __pyx_v_prev_x) < (__pyx_v_y - __pyx_v_prev_y));
+    if (__pyx_t_6) {
+      __pyx_t_3 = (__pyx_v_x - __pyx_v_prev_x);
+    } else {
+      __pyx_t_3 = (__pyx_v_y - __pyx_v_prev_y);
+    }
+    __pyx_v_snake_len = __pyx_t_3;
+
+    /* "diffr/algorithms/myers_cy.pyx":168
+ *          prev_y = prev_x - prev_k
+ *          snake_len = (x - prev_x) if (x - prev_x) < (y - prev_y) else (y - prev_y)
+ *          for i in range(snake_len):             # <<<<<<<<<<<<<<
+ *               x -= 1
+ *               y -= 1
+ */
+    __pyx_t_3 = __pyx_v_snake_len;
+    __pyx_t_8 = __pyx_t_3;
+    for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+      __pyx_v_i = __pyx_t_9;
+
+      /* "diffr/algorithms/myers_cy.pyx":169
+ *          snake_len = (x - prev_x) if (x - prev_x) < (y - prev_y) else (y - prev_y)
+ *          for i in range(snake_len):
+ *               x -= 1             # <<<<<<<<<<<<<<
+ *               y -= 1
+ *               script.append(("equal", words1[x]))
  */
       __pyx_v_x = (__pyx_v_x - 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":155
- *         while x > prev_x and y > prev_y:
- *             x -= 1
- *             y -= 1             # <<<<<<<<<<<<<<
- *             script.append(("equal", words1[x]))
- * 
+      /* "diffr/algorithms/myers_cy.pyx":170
+ *          for i in range(snake_len):
+ *               x -= 1
+ *               y -= 1             # <<<<<<<<<<<<<<
+ *               script.append(("equal", words1[x]))
+ *          if is_insert:
  */
       __pyx_v_y = (__pyx_v_y - 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":156
- *             x -= 1
- *             y -= 1
- *             script.append(("equal", words1[x]))             # <<<<<<<<<<<<<<
- * 
- *         # Add the insert or delete operation
+      /* "diffr/algorithms/myers_cy.pyx":171
+ *               x -= 1
+ *               y -= 1
+ *               script.append(("equal", words1[x]))             # <<<<<<<<<<<<<<
+ *          if is_insert:
+ *               y -= 1
  */
       if (unlikely(__pyx_v_words1 == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 156, __pyx_L1_error)
+        __PYX_ERR(0, 171, __pyx_L1_error)
       }
-      __pyx_t_8 = PyTuple_New(2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 156, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
+      __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
       __Pyx_INCREF(__pyx_n_u_equal);
       __Pyx_GIVEREF(__pyx_n_u_equal);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_n_u_equal)) __PYX_ERR(0, 156, __pyx_L1_error);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_n_u_equal)) __PYX_ERR(0, 171, __pyx_L1_error);
       __Pyx_INCREF(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x));
       __Pyx_GIVEREF(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x));
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x))) __PYX_ERR(0, 156, __pyx_L1_error);
-      __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_8); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 156, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x))) __PYX_ERR(0, 171, __pyx_L1_error);
+      __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_1); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 171, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     }
 
-    /* "diffr/algorithms/myers_cy.pyx":159
- * 
- *         # Add the insert or delete operation
- *         if op == "insert":             # <<<<<<<<<<<<<<
- *             y -= 1
- *             script.append(("insert", words2[y]))
+    /* "diffr/algorithms/myers_cy.pyx":172
+ *               y -= 1
+ *               script.append(("equal", words1[x]))
+ *          if is_insert:             # <<<<<<<<<<<<<<
+ *               y -= 1
+ *               script.append(("insert", words2[y]))
  */
-    __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_v_op, __pyx_n_u_insert, Py_EQ)); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 159, __pyx_L1_error)
-    if (__pyx_t_5) {
+    if (__pyx_v_is_insert) {
 
-      /* "diffr/algorithms/myers_cy.pyx":160
- *         # Add the insert or delete operation
- *         if op == "insert":
- *             y -= 1             # <<<<<<<<<<<<<<
- *             script.append(("insert", words2[y]))
- *         else:
+      /* "diffr/algorithms/myers_cy.pyx":173
+ *               script.append(("equal", words1[x]))
+ *          if is_insert:
+ *               y -= 1             # <<<<<<<<<<<<<<
+ *               script.append(("insert", words2[y]))
+ *          else:
  */
       __pyx_v_y = (__pyx_v_y - 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":161
- *         if op == "insert":
- *             y -= 1
- *             script.append(("insert", words2[y]))             # <<<<<<<<<<<<<<
- *         else:
- *             x -= 1
+      /* "diffr/algorithms/myers_cy.pyx":174
+ *          if is_insert:
+ *               y -= 1
+ *               script.append(("insert", words2[y]))             # <<<<<<<<<<<<<<
+ *          else:
+ *               x -= 1
  */
       if (unlikely(__pyx_v_words2 == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 161, __pyx_L1_error)
+        __PYX_ERR(0, 174, __pyx_L1_error)
       }
-      __pyx_t_8 = PyTuple_New(2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 161, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
+      __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
       __Pyx_INCREF(__pyx_n_u_insert);
       __Pyx_GIVEREF(__pyx_n_u_insert);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_n_u_insert)) __PYX_ERR(0, 161, __pyx_L1_error);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_n_u_insert)) __PYX_ERR(0, 174, __pyx_L1_error);
       __Pyx_INCREF(PyList_GET_ITEM(__pyx_v_words2, __pyx_v_y));
       __Pyx_GIVEREF(PyList_GET_ITEM(__pyx_v_words2, __pyx_v_y));
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, PyList_GET_ITEM(__pyx_v_words2, __pyx_v_y))) __PYX_ERR(0, 161, __pyx_L1_error);
-      __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_8); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 161, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, PyList_GET_ITEM(__pyx_v_words2, __pyx_v_y))) __PYX_ERR(0, 174, __pyx_L1_error);
+      __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_1); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 174, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "diffr/algorithms/myers_cy.pyx":159
- * 
- *         # Add the insert or delete operation
- *         if op == "insert":             # <<<<<<<<<<<<<<
- *             y -= 1
- *             script.append(("insert", words2[y]))
+      /* "diffr/algorithms/myers_cy.pyx":172
+ *               y -= 1
+ *               script.append(("equal", words1[x]))
+ *          if is_insert:             # <<<<<<<<<<<<<<
+ *               y -= 1
+ *               script.append(("insert", words2[y]))
  */
-      goto __pyx_L13;
+      goto __pyx_L11;
     }
 
-    /* "diffr/algorithms/myers_cy.pyx":163
- *             script.append(("insert", words2[y]))
- *         else:
- *             x -= 1             # <<<<<<<<<<<<<<
- *             script.append(("delete", words1[x]))
- * 
+    /* "diffr/algorithms/myers_cy.pyx":176
+ *               script.append(("insert", words2[y]))
+ *          else:
+ *               x -= 1             # <<<<<<<<<<<<<<
+ *               script.append(("delete", words1[x]))
+ *     snake_len = x if x < y else y
  */
     /*else*/ {
       __pyx_v_x = (__pyx_v_x - 1);
 
-      /* "diffr/algorithms/myers_cy.pyx":164
- *         else:
- *             x -= 1
- *             script.append(("delete", words1[x]))             # <<<<<<<<<<<<<<
- * 
- *     # Handle any remaining matches at the start
+      /* "diffr/algorithms/myers_cy.pyx":177
+ *          else:
+ *               x -= 1
+ *               script.append(("delete", words1[x]))             # <<<<<<<<<<<<<<
+ *     snake_len = x if x < y else y
+ *     for i in range(snake_len):
  */
       if (unlikely(__pyx_v_words1 == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 164, __pyx_L1_error)
+        __PYX_ERR(0, 177, __pyx_L1_error)
       }
-      __pyx_t_8 = PyTuple_New(2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 164, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
+      __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 177, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
       __Pyx_INCREF(__pyx_n_u_delete);
       __Pyx_GIVEREF(__pyx_n_u_delete);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_n_u_delete)) __PYX_ERR(0, 164, __pyx_L1_error);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_n_u_delete)) __PYX_ERR(0, 177, __pyx_L1_error);
       __Pyx_INCREF(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x));
       __Pyx_GIVEREF(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x));
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x))) __PYX_ERR(0, 164, __pyx_L1_error);
-      __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_8); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 164, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x))) __PYX_ERR(0, 177, __pyx_L1_error);
+      __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_1); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 177, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     }
-    __pyx_L13:;
+    __pyx_L11:;
   }
 
-  /* "diffr/algorithms/myers_cy.pyx":167
- * 
- *     # Handle any remaining matches at the start
- *     while x > 0 and y > 0 and words1[x - 1] == words2[y - 1]:             # <<<<<<<<<<<<<<
- *         x -= 1
- *         y -= 1
+  /* "diffr/algorithms/myers_cy.pyx":178
+ *               x -= 1
+ *               script.append(("delete", words1[x]))
+ *     snake_len = x if x < y else y             # <<<<<<<<<<<<<<
+ *     for i in range(snake_len):
+ *          x -= 1
  */
-  while (1) {
-    __pyx_t_6 = (__pyx_v_x > 0);
-    if (__pyx_t_6) {
-    } else {
-      __pyx_t_5 = __pyx_t_6;
-      goto __pyx_L16_bool_binop_done;
-    }
-    __pyx_t_6 = (__pyx_v_y > 0);
-    if (__pyx_t_6) {
-    } else {
-      __pyx_t_5 = __pyx_t_6;
-      goto __pyx_L16_bool_binop_done;
-    }
-    if (unlikely(__pyx_v_words1 == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 167, __pyx_L1_error)
-    }
-    __pyx_t_2 = (__pyx_v_x - 1);
-    if (unlikely(__pyx_v_words2 == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 167, __pyx_L1_error)
-    }
-    __pyx_t_3 = (__pyx_v_y - 1);
-    __pyx_t_8 = PyObject_RichCompare(PyList_GET_ITEM(__pyx_v_words1, __pyx_t_2), PyList_GET_ITEM(__pyx_v_words2, __pyx_t_3), Py_EQ); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 167, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 167, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __pyx_t_5 = __pyx_t_6;
-    __pyx_L16_bool_binop_done:;
-    if (!__pyx_t_5) break;
+  __pyx_t_6 = (__pyx_v_x < __pyx_v_y);
+  if (__pyx_t_6) {
+    __pyx_t_2 = __pyx_v_x;
+  } else {
+    __pyx_t_2 = __pyx_v_y;
+  }
+  __pyx_v_snake_len = __pyx_t_2;
 
-    /* "diffr/algorithms/myers_cy.pyx":168
- *     # Handle any remaining matches at the start
- *     while x > 0 and y > 0 and words1[x - 1] == words2[y - 1]:
- *         x -= 1             # <<<<<<<<<<<<<<
- *         y -= 1
- *         script.append(("equal", words1[x]))
+  /* "diffr/algorithms/myers_cy.pyx":179
+ *               script.append(("delete", words1[x]))
+ *     snake_len = x if x < y else y
+ *     for i in range(snake_len):             # <<<<<<<<<<<<<<
+ *          x -= 1
+ *          y -= 1
+ */
+  __pyx_t_2 = __pyx_v_snake_len;
+  __pyx_t_3 = __pyx_t_2;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_3; __pyx_t_8+=1) {
+    __pyx_v_i = __pyx_t_8;
+
+    /* "diffr/algorithms/myers_cy.pyx":180
+ *     snake_len = x if x < y else y
+ *     for i in range(snake_len):
+ *          x -= 1             # <<<<<<<<<<<<<<
+ *          y -= 1
+ *          script.append(("equal", words1[x]))
  */
     __pyx_v_x = (__pyx_v_x - 1);
 
-    /* "diffr/algorithms/myers_cy.pyx":169
- *     while x > 0 and y > 0 and words1[x - 1] == words2[y - 1]:
- *         x -= 1
- *         y -= 1             # <<<<<<<<<<<<<<
- *         script.append(("equal", words1[x]))
- * 
+    /* "diffr/algorithms/myers_cy.pyx":181
+ *     for i in range(snake_len):
+ *          x -= 1
+ *          y -= 1             # <<<<<<<<<<<<<<
+ *          script.append(("equal", words1[x]))
+ *     script.reverse()
  */
     __pyx_v_y = (__pyx_v_y - 1);
 
-    /* "diffr/algorithms/myers_cy.pyx":170
- *         x -= 1
- *         y -= 1
- *         script.append(("equal", words1[x]))             # <<<<<<<<<<<<<<
- * 
+    /* "diffr/algorithms/myers_cy.pyx":182
+ *          x -= 1
+ *          y -= 1
+ *          script.append(("equal", words1[x]))             # <<<<<<<<<<<<<<
  *     script.reverse()
+ *     for capsule in trace:
  */
     if (unlikely(__pyx_v_words1 == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 170, __pyx_L1_error)
+      __PYX_ERR(0, 182, __pyx_L1_error)
     }
-    __pyx_t_8 = PyTuple_New(2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 170, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
+    __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 182, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_n_u_equal);
     __Pyx_GIVEREF(__pyx_n_u_equal);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_n_u_equal)) __PYX_ERR(0, 170, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_n_u_equal)) __PYX_ERR(0, 182, __pyx_L1_error);
     __Pyx_INCREF(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x));
     __Pyx_GIVEREF(PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x));
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x))) __PYX_ERR(0, 170, __pyx_L1_error);
-    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_8); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 170, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, PyList_GET_ITEM(__pyx_v_words1, __pyx_v_x))) __PYX_ERR(0, 182, __pyx_L1_error);
+    __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_script, __pyx_t_1); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 182, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "diffr/algorithms/myers_cy.pyx":172
- *         script.append(("equal", words1[x]))
- * 
+  /* "diffr/algorithms/myers_cy.pyx":183
+ *          y -= 1
+ *          script.append(("equal", words1[x]))
  *     script.reverse()             # <<<<<<<<<<<<<<
+ *     for capsule in trace:
+ *          free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
+ */
+  __pyx_t_10 = PyList_Reverse(__pyx_v_script); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 183, __pyx_L1_error)
+
+  /* "diffr/algorithms/myers_cy.pyx":184
+ *          script.append(("equal", words1[x]))
+ *     script.reverse()
+ *     for capsule in trace:             # <<<<<<<<<<<<<<
+ *          free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
  *     return script
  */
-  __pyx_t_9 = PyList_Reverse(__pyx_v_script); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 172, __pyx_L1_error)
+  if (unlikely(__pyx_v_trace == Py_None)) {
+    PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
+    __PYX_ERR(0, 184, __pyx_L1_error)
+  }
+  __pyx_t_1 = __pyx_v_trace; __Pyx_INCREF(__pyx_t_1);
+  __pyx_t_2 = 0;
+  for (;;) {
+    {
+      Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
+      #if !CYTHON_ASSUME_SAFE_MACROS
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 184, __pyx_L1_error)
+      #endif
+      if (__pyx_t_2 >= __pyx_temp) break;
+    }
+    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    __pyx_t_11 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_11); __pyx_t_2++; if (unlikely((0 < 0))) __PYX_ERR(0, 184, __pyx_L1_error)
+    #else
+    __pyx_t_11 = __Pyx_PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_11);
+    #endif
+    __Pyx_XDECREF_SET(__pyx_v_capsule, __pyx_t_11);
+    __pyx_t_11 = 0;
 
-  /* "diffr/algorithms/myers_cy.pyx":173
- * 
+    /* "diffr/algorithms/myers_cy.pyx":185
  *     script.reverse()
+ *     for capsule in trace:
+ *          free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))             # <<<<<<<<<<<<<<
+ *     return script
+ */
+    __pyx_t_4 = PyCapsule_GetPointer(__pyx_v_capsule, ((char const *)"V_ptr")); if (unlikely(__pyx_t_4 == ((void *)NULL) && PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L1_error)
+    free(((int *)__pyx_t_4));
+
+    /* "diffr/algorithms/myers_cy.pyx":184
+ *          script.append(("equal", words1[x]))
+ *     script.reverse()
+ *     for capsule in trace:             # <<<<<<<<<<<<<<
+ *          free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
+ *     return script
+ */
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "diffr/algorithms/myers_cy.pyx":186
+ *     for capsule in trace:
+ *          free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
  *     return script             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
@@ -4387,184 +4736,23 @@ static PyObject *__pyx_f_5diffr_10algorithms_8myers_cy__backtrack(PyObject *__py
   __pyx_r = __pyx_v_script;
   goto __pyx_L0;
 
-  /* "diffr/algorithms/myers_cy.pyx":126
+  /* "diffr/algorithms/myers_cy.pyx":139
+ *     return _backtrack_fast(words1, words2, trace, offset, size)
  * 
- * @cython.final
- * cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):             # <<<<<<<<<<<<<<
- *     cdef list[tuple[str, str]] script = []
- *     cdef Py_ssize_t x = len(words1)
+ * cdef list _backtrack_fast(list words1, list words2, list trace, int offset, Py_ssize_t size):             # <<<<<<<<<<<<<<
+ *     """
+ *     Backtracks over the stored V arrays (extracted from PyCapsules) to reconstruct
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("diffr.algorithms.myers_cy._backtrack", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_AddTraceback("diffr.algorithms.myers_cy._backtrack_fast", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_script);
-  __Pyx_XDECREF(__pyx_v_v);
-  __Pyx_XDECREF(__pyx_v_op);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5diffr_10algorithms_8myers_cy_5_backtrack(PyObject *__pyx_self, 
-#if CYTHON_METH_FASTCALL
-PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
-#else
-PyObject *__pyx_args, PyObject *__pyx_kwds
-#endif
-); /*proto*/
-static PyMethodDef __pyx_mdef_5diffr_10algorithms_8myers_cy_5_backtrack = {"_backtrack", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_5diffr_10algorithms_8myers_cy_5_backtrack, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_5diffr_10algorithms_8myers_cy_5_backtrack(PyObject *__pyx_self, 
-#if CYTHON_METH_FASTCALL
-PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
-#else
-PyObject *__pyx_args, PyObject *__pyx_kwds
-#endif
-) {
-  PyObject *__pyx_v_words1 = 0;
-  PyObject *__pyx_v_words2 = 0;
-  PyObject *__pyx_v_trace = 0;
-  #if !CYTHON_METH_FASTCALL
-  CYTHON_UNUSED Py_ssize_t __pyx_nargs;
-  #endif
-  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
-  PyObject* values[3] = {0,0,0};
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("_backtrack (wrapper)", 0);
-  #if !CYTHON_METH_FASTCALL
-  #if CYTHON_ASSUME_SAFE_MACROS
-  __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
-  #else
-  __pyx_nargs = PyTuple_Size(__pyx_args); if (unlikely(__pyx_nargs < 0)) return NULL;
-  #endif
-  #endif
-  __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
-  {
-    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_words1,&__pyx_n_s_words2,&__pyx_n_s_trace,0};
-    if (__pyx_kwds) {
-      Py_ssize_t kw_args;
-      switch (__pyx_nargs) {
-        case  3: values[2] = __Pyx_Arg_FASTCALL(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
-        case  2: values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = __Pyx_NumKwargs_FASTCALL(__pyx_kwds);
-      switch (__pyx_nargs) {
-        case  0:
-        if (likely((values[0] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_words1)) != 0)) {
-          (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
-          kw_args--;
-        }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (likely((values[1] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_words2)) != 0)) {
-          (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
-          kw_args--;
-        }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
-        else {
-          __Pyx_RaiseArgtupleInvalid("_backtrack", 1, 3, 3, 1); __PYX_ERR(0, 126, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_trace)) != 0)) {
-          (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
-          kw_args--;
-        }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
-        else {
-          __Pyx_RaiseArgtupleInvalid("_backtrack", 1, 3, 3, 2); __PYX_ERR(0, 126, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "_backtrack") < 0)) __PYX_ERR(0, 126, __pyx_L3_error)
-      }
-    } else if (unlikely(__pyx_nargs != 3)) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
-      values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
-      values[2] = __Pyx_Arg_FASTCALL(__pyx_args, 2);
-    }
-    __pyx_v_words1 = ((PyObject*)values[0]);
-    __pyx_v_words2 = ((PyObject*)values[1]);
-    __pyx_v_trace = ((PyObject*)values[2]);
-  }
-  goto __pyx_L6_skip;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_backtrack", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 126, __pyx_L3_error)
-  __pyx_L6_skip:;
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L3_error:;
-  {
-    Py_ssize_t __pyx_temp;
-    for (__pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
-      __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
-    }
-  }
-  __Pyx_AddTraceback("diffr.algorithms.myers_cy._backtrack", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_words1), (&PyList_Type), 1, "words1", 1))) __PYX_ERR(0, 126, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_words2), (&PyList_Type), 1, "words2", 1))) __PYX_ERR(0, 126, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_trace), (&PyList_Type), 1, "trace", 1))) __PYX_ERR(0, 126, __pyx_L1_error)
-  __pyx_r = __pyx_pf_5diffr_10algorithms_8myers_cy_4_backtrack(__pyx_self, __pyx_v_words1, __pyx_v_words2, __pyx_v_trace);
-
-  /* function exit code */
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __pyx_r = NULL;
-  __pyx_L0:;
-  {
-    Py_ssize_t __pyx_temp;
-    for (__pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
-      __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
-    }
-  }
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5diffr_10algorithms_8myers_cy_4_backtrack(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_words1, PyObject *__pyx_v_words2, PyObject *__pyx_v_trace) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("_backtrack", 1);
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5diffr_10algorithms_8myers_cy__backtrack(__pyx_v_words1, __pyx_v_words2, __pyx_v_trace, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 126, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("diffr.algorithms.myers_cy._backtrack", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_capsule);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -4586,16 +4774,15 @@ static PyMethodDef __pyx_methods[] = {
 
 static int __Pyx_CreateStringTabAndInitStrings(void) {
   __Pyx_StringTabEntry __pyx_string_tab[] = {
-    {&__pyx_n_s__7, __pyx_k__7, sizeof(__pyx_k__7), 0, 0, 1, 1},
+    {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
+    {&__pyx_n_s__5, __pyx_k__5, sizeof(__pyx_k__5), 0, 0, 1, 1},
     {&__pyx_n_s_asyncio_coroutines, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
-    {&__pyx_n_s_backtrack, __pyx_k_backtrack, sizeof(__pyx_k_backtrack), 0, 0, 1, 1},
     {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
     {&__pyx_n_u_delete, __pyx_k_delete, sizeof(__pyx_k_delete), 0, 1, 0, 1},
     {&__pyx_n_s_diff_line, __pyx_k_diff_line, sizeof(__pyx_k_diff_line), 0, 0, 1, 1},
     {&__pyx_n_s_diffr_algorithms_myers_cy, __pyx_k_diffr_algorithms_myers_cy, sizeof(__pyx_k_diffr_algorithms_myers_cy), 0, 0, 1, 1},
     {&__pyx_kp_s_diffr_algorithms_myers_cy_pyx, __pyx_k_diffr_algorithms_myers_cy_pyx, sizeof(__pyx_k_diffr_algorithms_myers_cy_pyx), 0, 0, 1, 0},
     {&__pyx_n_u_equal, __pyx_k_equal, sizeof(__pyx_k_equal), 0, 1, 0, 1},
-    {&__pyx_n_s_get, __pyx_k_get, sizeof(__pyx_k_get), 0, 0, 1, 1},
     {&__pyx_n_u_insert, __pyx_k_insert, sizeof(__pyx_k_insert), 0, 1, 0, 1},
     {&__pyx_n_s_is_coroutine, __pyx_k_is_coroutine, sizeof(__pyx_k_is_coroutine), 0, 0, 1, 1},
     {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
@@ -4605,17 +4792,15 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
     {&__pyx_n_s_text, __pyx_k_text, sizeof(__pyx_k_text), 0, 0, 1, 1},
     {&__pyx_n_s_tokenize, __pyx_k_tokenize, sizeof(__pyx_k_tokenize), 0, 0, 1, 1},
-    {&__pyx_n_s_trace, __pyx_k_trace, sizeof(__pyx_k_trace), 0, 0, 1, 1},
     {&__pyx_n_s_updated, __pyx_k_updated, sizeof(__pyx_k_updated), 0, 0, 1, 1},
-    {&__pyx_n_s_words1, __pyx_k_words1, sizeof(__pyx_k_words1), 0, 0, 1, 1},
-    {&__pyx_n_s_words2, __pyx_k_words2, sizeof(__pyx_k_words2), 0, 0, 1, 1},
     {0, 0, 0, 0, 0, 0, 0}
   };
   return __Pyx_InitStrings(__pyx_string_tab);
 }
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 85, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -4626,41 +4811,29 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "diffr/algorithms/myers_cy.pyx":37
+  /* "diffr/algorithms/myers_cy.pyx":33
  * 
  * @cython.final
  * cpdef list[str] tokenize(str text):             # <<<<<<<<<<<<<<
- *     """
- *     Tokenizes text into a list of tokens where each token is either a
+ *     cdef list tokens = []
+ *     cdef Py_ssize_t i = 0, n = len(text)
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_n_s_text); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_n_s_text); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_diffr_algorithms_myers_cy_pyx, __pyx_n_s_tokenize, 37, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_diffr_algorithms_myers_cy_pyx, __pyx_n_s_tokenize, 33, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 33, __pyx_L1_error)
 
-  /* "diffr/algorithms/myers_cy.pyx":69
+  /* "diffr/algorithms/myers_cy.pyx":57
  * 
  * @cython.final
  * cpdef list[tuple[str, str]] diff_line(str original, str updated):             # <<<<<<<<<<<<<<
- *     # Tokenize input strings into lists of words
- *     cdef list[str] words1 = tokenize(original) if original else []
+ *     """
+ *     A fast Myers diff that uses C arrays (wrapped in PyCapsules) for the diagonal map.
  */
-  __pyx_tuple__3 = PyTuple_Pack(2, __pyx_n_s_original, __pyx_n_s_updated); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(2, __pyx_n_s_original, __pyx_n_s_updated); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
-  __pyx_codeobj__4 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__3, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_diffr_algorithms_myers_cy_pyx, __pyx_n_s_diff_line, 69, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__4)) __PYX_ERR(0, 69, __pyx_L1_error)
-
-  /* "diffr/algorithms/myers_cy.pyx":126
- * 
- * @cython.final
- * cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):             # <<<<<<<<<<<<<<
- *     cdef list[tuple[str, str]] script = []
- *     cdef Py_ssize_t x = len(words1)
- */
-  __pyx_tuple__5 = PyTuple_Pack(3, __pyx_n_s_words1, __pyx_n_s_words2, __pyx_n_s_trace); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 126, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__5);
-  __Pyx_GIVEREF(__pyx_tuple__5);
-  __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_diffr_algorithms_myers_cy_pyx, __pyx_n_s_backtrack, 126, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_codeobj__4 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__3, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_diffr_algorithms_myers_cy_pyx, __pyx_n_s_diff_line, 57, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__4)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4670,12 +4843,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 /* #### Code section: init_constants ### */
 
 static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
-  __pyx_umethod_PyDict_Type_get.type = (PyObject*)&PyDict_Type;
-  __pyx_umethod_PyDict_Type_get.method_name = &__pyx_n_s_get;
   if (__Pyx_CreateStringTabAndInitStrings() < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_int_neg_1 = PyInt_FromLong(-1); if (unlikely(!__pyx_int_neg_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -5029,40 +5197,28 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "diffr/algorithms/myers_cy.pyx":37
+  /* "diffr/algorithms/myers_cy.pyx":33
  * 
  * @cython.final
  * cpdef list[str] tokenize(str text):             # <<<<<<<<<<<<<<
- *     """
- *     Tokenizes text into a list of tokens where each token is either a
+ *     cdef list tokens = []
+ *     cdef Py_ssize_t i = 0, n = len(text)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_5diffr_10algorithms_8myers_cy_1tokenize, 0, __pyx_n_s_tokenize, NULL, __pyx_n_s_diffr_algorithms_myers_cy, __pyx_d, ((PyObject *)__pyx_codeobj__2)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_5diffr_10algorithms_8myers_cy_1tokenize, 0, __pyx_n_s_tokenize, NULL, __pyx_n_s_diffr_algorithms_myers_cy, __pyx_d, ((PyObject *)__pyx_codeobj__2)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tokenize, __pyx_t_2) < 0) __PYX_ERR(0, 37, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tokenize, __pyx_t_2) < 0) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "diffr/algorithms/myers_cy.pyx":69
+  /* "diffr/algorithms/myers_cy.pyx":57
  * 
  * @cython.final
  * cpdef list[tuple[str, str]] diff_line(str original, str updated):             # <<<<<<<<<<<<<<
- *     # Tokenize input strings into lists of words
- *     cdef list[str] words1 = tokenize(original) if original else []
+ *     """
+ *     A fast Myers diff that uses C arrays (wrapped in PyCapsules) for the diagonal map.
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_5diffr_10algorithms_8myers_cy_3diff_line, 0, __pyx_n_s_diff_line, NULL, __pyx_n_s_diffr_algorithms_myers_cy, __pyx_d, ((PyObject *)__pyx_codeobj__4)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_5diffr_10algorithms_8myers_cy_3diff_line, 0, __pyx_n_s_diff_line, NULL, __pyx_n_s_diffr_algorithms_myers_cy, __pyx_d, ((PyObject *)__pyx_codeobj__4)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_diff_line, __pyx_t_2) < 0) __PYX_ERR(0, 69, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-  /* "diffr/algorithms/myers_cy.pyx":126
- * 
- * @cython.final
- * cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):             # <<<<<<<<<<<<<<
- *     cdef list[tuple[str, str]] script = []
- *     cdef Py_ssize_t x = len(words1)
- */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_5diffr_10algorithms_8myers_cy_5_backtrack, 0, __pyx_n_s_backtrack, NULL, __pyx_n_s_diffr_algorithms_myers_cy, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_backtrack, __pyx_t_2) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_diff_line, __pyx_t_2) < 0) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "diffr/algorithms/myers_cy.pyx":1
@@ -5792,399 +5948,6 @@ static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *nam
         "Argument '%.200s' has incorrect type (expected " __Pyx_FMT_TYPENAME
         ", got " __Pyx_FMT_TYPENAME ")", name, type_name, obj_type_name);
     __Pyx_DECREF_TypeName(type_name);
-    __Pyx_DECREF_TypeName(obj_type_name);
-    return 0;
-}
-
-/* DictGetItem */
-#if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
-static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
-    PyObject *value;
-    value = PyDict_GetItemWithError(d, key);
-    if (unlikely(!value)) {
-        if (!PyErr_Occurred()) {
-            if (unlikely(PyTuple_Check(key))) {
-                PyObject* args = PyTuple_Pack(1, key);
-                if (likely(args)) {
-                    PyErr_SetObject(PyExc_KeyError, args);
-                    Py_DECREF(args);
-                }
-            } else {
-                PyErr_SetObject(PyExc_KeyError, key);
-            }
-        }
-        return NULL;
-    }
-    Py_INCREF(value);
-    return value;
-}
-#endif
-
-/* PyObjectCall */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
-    PyObject *result;
-    ternaryfunc call = Py_TYPE(func)->tp_call;
-    if (unlikely(!call))
-        return PyObject_Call(func, arg, kw);
-    #if PY_MAJOR_VERSION < 3
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    #else
-    if (unlikely(Py_EnterRecursiveCall(" while calling a Python object")))
-        return NULL;
-    #endif
-    result = (*call)(func, arg, kw);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
-
-/* UnpackUnboundCMethod */
-static PyObject *__Pyx_SelflessCall(PyObject *method, PyObject *args, PyObject *kwargs) {
-    PyObject *result;
-    PyObject *selfless_args = PyTuple_GetSlice(args, 1, PyTuple_Size(args));
-    if (unlikely(!selfless_args)) return NULL;
-    result = PyObject_Call(method, selfless_args, kwargs);
-    Py_DECREF(selfless_args);
-    return result;
-}
-static PyMethodDef __Pyx_UnboundCMethod_Def = {
-     "CythonUnboundCMethod",
-     __PYX_REINTERPRET_FUNCION(PyCFunction, __Pyx_SelflessCall),
-     METH_VARARGS | METH_KEYWORDS,
-     NULL
-};
-static int __Pyx_TryUnpackUnboundCMethod(__Pyx_CachedCFunction* target) {
-    PyObject *method;
-    method = __Pyx_PyObject_GetAttrStr(target->type, *target->method_name);
-    if (unlikely(!method))
-        return -1;
-    target->method = method;
-#if CYTHON_COMPILING_IN_CPYTHON
-    #if PY_MAJOR_VERSION >= 3
-    if (likely(__Pyx_TypeCheck(method, &PyMethodDescr_Type)))
-    #else
-    if (likely(!__Pyx_CyOrPyCFunction_Check(method)))
-    #endif
-    {
-        PyMethodDescrObject *descr = (PyMethodDescrObject*) method;
-        target->func = descr->d_method->ml_meth;
-        target->flag = descr->d_method->ml_flags & ~(METH_CLASS | METH_STATIC | METH_COEXIST | METH_STACKLESS);
-    } else
-#endif
-#if CYTHON_COMPILING_IN_PYPY
-#else
-    if (PyCFunction_Check(method))
-#endif
-    {
-        PyObject *self;
-        int self_found;
-#if CYTHON_COMPILING_IN_LIMITED_API || CYTHON_COMPILING_IN_PYPY
-        self = PyObject_GetAttrString(method, "__self__");
-        if (!self) {
-            PyErr_Clear();
-        }
-#else
-        self = PyCFunction_GET_SELF(method);
-#endif
-        self_found = (self && self != Py_None);
-#if CYTHON_COMPILING_IN_LIMITED_API || CYTHON_COMPILING_IN_PYPY
-        Py_XDECREF(self);
-#endif
-        if (self_found) {
-            PyObject *unbound_method = PyCFunction_New(&__Pyx_UnboundCMethod_Def, method);
-            if (unlikely(!unbound_method)) return -1;
-            Py_DECREF(method);
-            target->method = unbound_method;
-        }
-    }
-    return 0;
-}
-
-/* CallUnboundCMethod1 */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_CallUnboundCMethod1(__Pyx_CachedCFunction* cfunc, PyObject* self, PyObject* arg) {
-    if (likely(cfunc->func)) {
-        int flag = cfunc->flag;
-        if (flag == METH_O) {
-            return (*(cfunc->func))(self, arg);
-        } else if ((PY_VERSION_HEX >= 0x030600B1) && flag == METH_FASTCALL) {
-            #if PY_VERSION_HEX >= 0x030700A0
-                return (*(__Pyx_PyCFunctionFast)(void*)(PyCFunction)cfunc->func)(self, &arg, 1);
-            #else
-                return (*(__Pyx_PyCFunctionFastWithKeywords)(void*)(PyCFunction)cfunc->func)(self, &arg, 1, NULL);
-            #endif
-        } else if ((PY_VERSION_HEX >= 0x030700A0) && flag == (METH_FASTCALL | METH_KEYWORDS)) {
-            return (*(__Pyx_PyCFunctionFastWithKeywords)(void*)(PyCFunction)cfunc->func)(self, &arg, 1, NULL);
-        }
-    }
-    return __Pyx__CallUnboundCMethod1(cfunc, self, arg);
-}
-#endif
-static PyObject* __Pyx__CallUnboundCMethod1(__Pyx_CachedCFunction* cfunc, PyObject* self, PyObject* arg){
-    PyObject *args, *result = NULL;
-    if (unlikely(!cfunc->func && !cfunc->method) && unlikely(__Pyx_TryUnpackUnboundCMethod(cfunc) < 0)) return NULL;
-#if CYTHON_COMPILING_IN_CPYTHON
-    if (cfunc->func && (cfunc->flag & METH_VARARGS)) {
-        args = PyTuple_New(1);
-        if (unlikely(!args)) goto bad;
-        Py_INCREF(arg);
-        PyTuple_SET_ITEM(args, 0, arg);
-        if (cfunc->flag & METH_KEYWORDS)
-            result = (*(PyCFunctionWithKeywords)(void*)(PyCFunction)cfunc->func)(self, args, NULL);
-        else
-            result = (*cfunc->func)(self, args);
-    } else {
-        args = PyTuple_New(2);
-        if (unlikely(!args)) goto bad;
-        Py_INCREF(self);
-        PyTuple_SET_ITEM(args, 0, self);
-        Py_INCREF(arg);
-        PyTuple_SET_ITEM(args, 1, arg);
-        result = __Pyx_PyObject_Call(cfunc->method, args, NULL);
-    }
-#else
-    args = PyTuple_Pack(2, self, arg);
-    if (unlikely(!args)) goto bad;
-    result = __Pyx_PyObject_Call(cfunc->method, args, NULL);
-#endif
-bad:
-    Py_XDECREF(args);
-    return result;
-}
-
-/* CallUnboundCMethod2 */
-#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030600B1
-static CYTHON_INLINE PyObject *__Pyx_CallUnboundCMethod2(__Pyx_CachedCFunction *cfunc, PyObject *self, PyObject *arg1, PyObject *arg2) {
-    if (likely(cfunc->func)) {
-        PyObject *args[2] = {arg1, arg2};
-        if (cfunc->flag == METH_FASTCALL) {
-            #if PY_VERSION_HEX >= 0x030700A0
-            return (*(__Pyx_PyCFunctionFast)(void*)(PyCFunction)cfunc->func)(self, args, 2);
-            #else
-            return (*(__Pyx_PyCFunctionFastWithKeywords)(void*)(PyCFunction)cfunc->func)(self, args, 2, NULL);
-            #endif
-        }
-        #if PY_VERSION_HEX >= 0x030700A0
-        if (cfunc->flag == (METH_FASTCALL | METH_KEYWORDS))
-            return (*(__Pyx_PyCFunctionFastWithKeywords)(void*)(PyCFunction)cfunc->func)(self, args, 2, NULL);
-        #endif
-    }
-    return __Pyx__CallUnboundCMethod2(cfunc, self, arg1, arg2);
-}
-#endif
-static PyObject* __Pyx__CallUnboundCMethod2(__Pyx_CachedCFunction* cfunc, PyObject* self, PyObject* arg1, PyObject* arg2){
-    PyObject *args, *result = NULL;
-    if (unlikely(!cfunc->func && !cfunc->method) && unlikely(__Pyx_TryUnpackUnboundCMethod(cfunc) < 0)) return NULL;
-#if CYTHON_COMPILING_IN_CPYTHON
-    if (cfunc->func && (cfunc->flag & METH_VARARGS)) {
-        args = PyTuple_New(2);
-        if (unlikely(!args)) goto bad;
-        Py_INCREF(arg1);
-        PyTuple_SET_ITEM(args, 0, arg1);
-        Py_INCREF(arg2);
-        PyTuple_SET_ITEM(args, 1, arg2);
-        if (cfunc->flag & METH_KEYWORDS)
-            result = (*(PyCFunctionWithKeywords)(void*)(PyCFunction)cfunc->func)(self, args, NULL);
-        else
-            result = (*cfunc->func)(self, args);
-    } else {
-        args = PyTuple_New(3);
-        if (unlikely(!args)) goto bad;
-        Py_INCREF(self);
-        PyTuple_SET_ITEM(args, 0, self);
-        Py_INCREF(arg1);
-        PyTuple_SET_ITEM(args, 1, arg1);
-        Py_INCREF(arg2);
-        PyTuple_SET_ITEM(args, 2, arg2);
-        result = __Pyx_PyObject_Call(cfunc->method, args, NULL);
-    }
-#else
-    args = PyTuple_Pack(3, self, arg1, arg2);
-    if (unlikely(!args)) goto bad;
-    result = __Pyx_PyObject_Call(cfunc->method, args, NULL);
-#endif
-bad:
-    Py_XDECREF(args);
-    return result;
-}
-
-/* dict_getitem_default */
-static PyObject* __Pyx_PyDict_GetItemDefault(PyObject* d, PyObject* key, PyObject* default_value) {
-    PyObject* value;
-#if PY_MAJOR_VERSION >= 3 && (!CYTHON_COMPILING_IN_PYPY || PYPY_VERSION_NUM >= 0x07020000)
-    value = PyDict_GetItemWithError(d, key);
-    if (unlikely(!value)) {
-        if (unlikely(PyErr_Occurred()))
-            return NULL;
-        value = default_value;
-    }
-    Py_INCREF(value);
-    if ((1));
-#else
-    if (PyString_CheckExact(key) || PyUnicode_CheckExact(key) || PyInt_CheckExact(key)) {
-        value = PyDict_GetItem(d, key);
-        if (unlikely(!value)) {
-            value = default_value;
-        }
-        Py_INCREF(value);
-    }
-#endif
-    else {
-        if (default_value == Py_None)
-            value = __Pyx_CallUnboundCMethod1(&__pyx_umethod_PyDict_Type_get, d, key);
-        else
-            value = __Pyx_CallUnboundCMethod2(&__pyx_umethod_PyDict_Type_get, d, key, default_value);
-    }
-    return value;
-}
-
-/* PyIntBinop */
-#if !CYTHON_COMPILING_IN_PYPY
-static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check) {
-    CYTHON_MAYBE_UNUSED_VAR(intval);
-    CYTHON_MAYBE_UNUSED_VAR(inplace);
-    CYTHON_UNUSED_VAR(zerodivision_check);
-    #if PY_MAJOR_VERSION < 3
-    if (likely(PyInt_CheckExact(op1))) {
-        const long b = intval;
-        long x;
-        long a = PyInt_AS_LONG(op1);
-        
-            x = (long)((unsigned long)a + (unsigned long)b);
-            if (likely((x^a) >= 0 || (x^b) >= 0))
-                return PyInt_FromLong(x);
-            return PyLong_Type.tp_as_number->nb_add(op1, op2);
-    }
-    #endif
-    #if CYTHON_USE_PYLONG_INTERNALS
-    if (likely(PyLong_CheckExact(op1))) {
-        const long b = intval;
-        long a, x;
-#ifdef HAVE_LONG_LONG
-        const PY_LONG_LONG llb = intval;
-        PY_LONG_LONG lla, llx;
-#endif
-        if (unlikely(__Pyx_PyLong_IsZero(op1))) {
-            return __Pyx_NewRef(op2);
-        }
-        if (likely(__Pyx_PyLong_IsCompact(op1))) {
-            a = __Pyx_PyLong_CompactValue(op1);
-        } else {
-            const digit* digits = __Pyx_PyLong_Digits(op1);
-            const Py_ssize_t size = __Pyx_PyLong_SignedDigitCount(op1);
-            switch (size) {
-                case -2:
-                    if (8 * sizeof(long) - 1 > 2 * PyLong_SHIFT) {
-                        a = -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-                    #ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 2 * PyLong_SHIFT) {
-                        lla = -(PY_LONG_LONG) (((((unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-                    #endif
-                    }
-                    CYTHON_FALLTHROUGH;
-                case 2:
-                    if (8 * sizeof(long) - 1 > 2 * PyLong_SHIFT) {
-                        a = (long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-                    #ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 2 * PyLong_SHIFT) {
-                        lla = (PY_LONG_LONG) (((((unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-                    #endif
-                    }
-                    CYTHON_FALLTHROUGH;
-                case -3:
-                    if (8 * sizeof(long) - 1 > 3 * PyLong_SHIFT) {
-                        a = -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-                    #ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 3 * PyLong_SHIFT) {
-                        lla = -(PY_LONG_LONG) (((((((unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-                    #endif
-                    }
-                    CYTHON_FALLTHROUGH;
-                case 3:
-                    if (8 * sizeof(long) - 1 > 3 * PyLong_SHIFT) {
-                        a = (long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-                    #ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 3 * PyLong_SHIFT) {
-                        lla = (PY_LONG_LONG) (((((((unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-                    #endif
-                    }
-                    CYTHON_FALLTHROUGH;
-                case -4:
-                    if (8 * sizeof(long) - 1 > 4 * PyLong_SHIFT) {
-                        a = -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-                    #ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 4 * PyLong_SHIFT) {
-                        lla = -(PY_LONG_LONG) (((((((((unsigned PY_LONG_LONG)digits[3]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-                    #endif
-                    }
-                    CYTHON_FALLTHROUGH;
-                case 4:
-                    if (8 * sizeof(long) - 1 > 4 * PyLong_SHIFT) {
-                        a = (long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-                    #ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 4 * PyLong_SHIFT) {
-                        lla = (PY_LONG_LONG) (((((((((unsigned PY_LONG_LONG)digits[3]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-                    #endif
-                    }
-                    CYTHON_FALLTHROUGH;
-                default: return PyLong_Type.tp_as_number->nb_add(op1, op2);
-            }
-        }
-                x = a + b;
-            return PyLong_FromLong(x);
-#ifdef HAVE_LONG_LONG
-        long_long:
-                llx = lla + llb;
-            return PyLong_FromLongLong(llx);
-#endif
-        
-        
-    }
-    #endif
-    if (PyFloat_CheckExact(op1)) {
-        const long b = intval;
-#if CYTHON_COMPILING_IN_LIMITED_API
-        double a = __pyx_PyFloat_AsDouble(op1);
-#else
-        double a = PyFloat_AS_DOUBLE(op1);
-#endif
-            double result;
-            
-            PyFPE_START_PROTECT("add", return NULL)
-            result = ((double)a) + (double)b;
-            PyFPE_END_PROTECT(result)
-            return PyFloat_FromDouble(result);
-    }
-    return (inplace ? PyNumber_InPlaceAdd : PyNumber_Add)(op1, op2);
-}
-#endif
-
-/* RaiseUnexpectedTypeError */
-static int
-__Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj)
-{
-    __Pyx_TypeName obj_type_name = __Pyx_PyType_GetName(Py_TYPE(obj));
-    PyErr_Format(PyExc_TypeError, "Expected %s, got " __Pyx_FMT_TYPENAME,
-                 expected, obj_type_name);
     __Pyx_DECREF_TypeName(obj_type_name);
     return 0;
 }
@@ -7795,7 +7558,7 @@ __Pyx_PyType_GetName(PyTypeObject* tp)
     if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) {
         PyErr_Clear();
         Py_XDECREF(name);
-        name = __Pyx_NewRef(__pyx_n_s__7);
+        name = __Pyx_NewRef(__pyx_n_s__5);
     }
     return name;
 }

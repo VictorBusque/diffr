@@ -124,7 +124,9 @@ if __name__ == "__main__":
     diff_cy_time, diff_cy = run_test(diff_func_cy, CODE_OLD_0, CODE_NEW_0)
 
     logging.info("Diff time: %.6f", diff_cy_time)
-    logging.info("Matches expected: %s", "✅" if diff_cy == EXPECTED_DIFF_0 else "❌")
+    expected = [[first, second] for first, second in EXPECTED_DIFF_0]
+    any_match = diff_cy == expected or diff_cy == EXPECTED_DIFF_0
+    logging.info("Matches expected: %s", "✅" if any_match else "❌")
 
 
     tokenize_cy_time, tokens_cy = run_test(tokenize_func_cy, CODE_OLD_1, CODE_NEW_1)
@@ -139,9 +141,12 @@ if __name__ == "__main__":
     diff_cy_time, diff_cy = run_test(diff_func_cy, CODE_OLD_1, CODE_NEW_1)
 
     logging.info("Diff time: %.6f", diff_cy_time)
-    logging.info("Matches expected: %s", "✅" if diff_cy == EXPECTED_DIFF_1 else "❌")
+    expected = [[first, second] for first, second in EXPECTED_DIFF_1]
+    any_match = diff_cy == expected or diff_cy == EXPECTED_DIFF_1
+    logging.info("Matches expected: %s", "✅" if any_match else "❌")
 
-    # if not diff_cy == EXPECTED_DIFF_1:
-    #     logging.info("Diff: %s", json.dumps(diff_cy))
-    #     logging.info("Expected: %s", json.dumps(EXPECTED_DIFF_1))
+    
+    if not any_match:
+        logging.info("Diff: %s", json.dumps(diff_cy))
+        logging.info("Expected: %s", json.dumps(EXPECTED_DIFF_1))
     

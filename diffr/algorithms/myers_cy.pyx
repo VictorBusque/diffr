@@ -1,55 +1,46 @@
 # cython: boundscheck=False, wraparound=False
 # cython: language_level=3
 
+from libc.stdlib cimport malloc, free
 cimport cython
+from cpython.pycapsule cimport PyCapsule_New, PyCapsule_GetPointer
+
+# Helpers for character classification remain unchanged.
+@cython.inline
+cdef bint is_ascii_space(int ch) nogil:
+    return ch == 32 or (9 <= ch <= 13)
 
 @cython.inline
-cdef bint is_ascii_space(int ch):
-    """
-    Check if ch is one of [tab, newline, vertical-tab, form-feed, carriage-return, space].
-    Extend if you want to handle other Unicode whitespace.
-    """
-    if ch in (9, 10, 11, 12, 13, 32):
-        return True
-    return False
+cdef bint is_alnum_or_underscore(int ch) nogil:
+    return (48 <= ch <= 57) or (65 <= ch <= 90) or (97 <= ch <= 122) or (ch == 95)
+
+# Helper functions to mimic dict.get() behavior.
+@cython.inline
+cdef int get_insertion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+    cdef int idx = key + offset
+    if idx < 0 or idx >= size:
+         return 0
+    return arr[idx]
 
 @cython.inline
-cdef bint is_alnum_or_underscore(int ch):
-    """
-    Check for ASCII letters [a-zA-Z], digits [0-9], or underscore '_'.
-    Expand as desired for full Unicode support.
-    """
-    # uppercase letters [A-Z]
-    if 65 <= ch <= 90:
-        return True
-    # lowercase letters [a-z]
-    if 97 <= ch <= 122:
-        return True
-    # digits [0-9]
-    if 48 <= ch <= 57:
-        return True
-    # underscore
-    if ch == 95:
-        return True
-    return False
+cdef int get_deletion(int* arr, int key, int offset, Py_ssize_t size) nogil:
+    cdef int idx = key + offset
+    if idx < 0 or idx >= size:
+         return -1
+    return arr[idx]
 
 @cython.final
 cpdef list[str] tokenize(str text):
-    """
-    Tokenizes text into a list of tokens where each token is either a
-    contiguous sequence of word-characters (letters, digits, underscore)
-    or a single non-whitespace, non-word character.
-    """
     cdef list tokens = []
     cdef Py_ssize_t i = 0, n = len(text)
-    cdef int ch
     cdef Py_ssize_t start
-
+    cdef int ch
     while i < n:
         ch = ord(text[i])
         if is_ascii_space(ch):
             i += 1
-        elif is_alnum_or_underscore(ch):
+            continue
+        if is_alnum_or_underscore(ch):
             start = i
             while i < n:
                 ch = ord(text[i])
@@ -58,116 +49,138 @@ cpdef list[str] tokenize(str text):
                 i += 1
             tokens.append(text[start:i])
         else:
-            tokens.append(text[i:i+1])
+            tokens.append(text[i])
             i += 1
-
-
     return tokens
-
 
 @cython.final
 cpdef list[tuple[str, str]] diff_line(str original, str updated):
-    # Tokenize input strings into lists of words
+    """
+    A fast Myers diff that uses C arrays (wrapped in PyCapsules) for the diagonal map.
+    This version first advances an initial snake (d=0) so that matching tokens at
+    the beginning (like "result") are marked as equal.
+    """
     cdef list[str] words1 = tokenize(original) if original else []
     cdef list[str] words2 = tokenize(updated) if updated else []
     
-    # Get lengths of the word lists
     cdef Py_ssize_t N = len(words1)
     cdef Py_ssize_t M = len(words2)
-
-    # Handle edge cases
     if N == 0 and M == 0:
-        return []
+         return []
     if N == 0:
-        return [("insert", word) for word in words2]
+         return [("insert", w) for w in words2]
     if M == 0:
-        return [("delete", word) for word in words1]
+         return [("delete", w) for w in words1]
 
-    # Initialize variables for Myers diff algorithm
     cdef Py_ssize_t max_d = N + M
-    cdef dict[int, int] V = {0: 0}  # Diagonal map: k -> x
-    cdef list trace = []  # Store V states for backtracking
+    cdef Py_ssize_t size = 2 * max_d + 1
+    cdef int offset = max_d
+    cdef Py_ssize_t i, d, k, k_index, x, y
 
-    cdef Py_ssize_t d, k, x, y, v_km, v_kp
-    cdef dict[int, int] current_V
+    # Allocate the initial V array.
+    cdef int* V = <int*> malloc(size * sizeof(int))
+    if not V:
+         raise MemoryError()
+    # Initialize V: all entries -1, then set V[offset] = 0.
+    for i in range(size):
+         V[i] = -1
+    V[offset] = 0
 
-    # Forward pass: Build the shortest edit path
-    for d in range(max_d + 1):
-        current_V = {}
-        
-        for k in range(-d, d + 1, 2):
-            # Get furthest x values for adjacent diagonals
-            v_km = V[k - 1] if k - 1 in V else -1
-            v_kp = V[k + 1] if k + 1 in V else -1
-        
-            # Choose direction: insert or delete
-            if k == -d or (k != d and v_km < v_kp):
-                x = V.get(k + 1, 0)  # Insert: take x from k + 1
-            else:
-                x = V.get(k - 1, 0) + 1  # Delete: take x from k - 1 and advance
-            y = x - k
+    # --- Initial snake advancement (d=0) ---
+    x = V[offset]
+    y = x  # since k == 0 for d=0
+    while x < N and y < M and words1[x] == words2[y]:
+         x += 1
+         y += 1
+    V[offset] = x
+    # If the entire sequences match, we can return immediately.
+    if x >= N and y >= M:
+         # Build a script marking all tokens as equal.
+         return [("equal", token) for token in words1]
+    
+    # Trace stores a PyCapsule wrapping each V array.
+    cdef list trace = []
+    trace.append(PyCapsule_New(V, b"V_ptr", NULL))
 
-            # Snake forward over matching words
-            while x < N and y < M and words1[x] == words2[y]:
-                x += 1
-                y += 1
-            current_V[k] = x
+    cdef int* current_V
+    # Forward pass: iterate d = 1 to max_d.
+    for d in range(1, max_d + 1):
+         current_V = <int*> malloc(size * sizeof(int))
+         if not current_V:
+              for capsule in trace:
+                   free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
+              raise MemoryError()
+         # Copy the previous V.
+         for i in range(size):
+              current_V[i] = V[i]
+         for k in range(-d, d + 1, 2):
+              k_index = k + offset
+              if k == -d:
+                   x = get_insertion(V, k + 1, offset, size)
+              elif k == d:
+                   x = get_deletion(V, k - 1, offset, size) + 1
+              else:
+                   if get_deletion(V, k - 1, offset, size) < get_deletion(V, k + 1, offset, size):
+                        x = get_insertion(V, k + 1, offset, size)
+                   else:
+                        x = get_deletion(V, k - 1, offset, size) + 1
+              y = x - k
+              while x < N and y < M and words1[x] == words2[y]:
+                   x += 1
+                   y += 1
+              current_V[k_index] = x
+              if x >= N and y >= M:
+                   trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+                   return _backtrack_fast(words1, words2, trace, offset, size)
+         trace.append(PyCapsule_New(current_V, b"V_ptr", NULL))
+         V = current_V  # use the new V for next iteration
+    return _backtrack_fast(words1, words2, trace, offset, size)
 
-            # If end is reached, backtrack
-            if x >= N and y >= M:
-                trace.append(current_V)
-                return _backtrack(words1, words2, trace)
-
-        trace.append(current_V)
-        V = current_V
-
-
-@cython.final
-cpdef list[tuple[str, str]] _backtrack(list[str] words1, list[str] words2, list trace):
-    cdef list[tuple[str, str]] script = []
+cdef list _backtrack_fast(list words1, list words2, list trace, int offset, Py_ssize_t size):
+    """
+    Backtracks over the stored V arrays (extracted from PyCapsules) to reconstruct
+    the edit script. Each V array is freed exactly once.
+    """
+    cdef list script = []
     cdef Py_ssize_t x = len(words1)
     cdef Py_ssize_t y = len(words2)
+    cdef Py_ssize_t n_trace = len(trace)
+    cdef Py_ssize_t d, k, prev_k, prev_x, prev_y, snake_len, i
+    cdef int* v
+    cdef int left, right
+    cdef bint is_insert
 
-    cdef dict[int, int] v
-    cdef Py_ssize_t d, k, prev_k, prev_x, prev_y
-    cdef str op
-
-    # Backward pass: Reconstruct the edit script
-    for d in range(len(trace) - 1, 0, -1):
-        v = trace[d - 1]
-        k = x - y
-
-        # Determine previous step: insert or delete
-        if k == -d or (k != d and v.get(k - 1, -1) < v.get(k + 1, -1)):
-            prev_k = k + 1
-            prev_x = v.get(prev_k, 0)
-            prev_y = prev_x - prev_k
-            op = "insert"
-        else:
-            prev_k = k - 1
-            prev_x = v.get(prev_k, 0) + 1
-            prev_y = prev_x - prev_k
-            op = "delete"
-
-        # Snake back through equal words
-        while x > prev_x and y > prev_y:
-            x -= 1
-            y -= 1
-            script.append(("equal", words1[x]))
-
-        # Add the insert or delete operation
-        if op == "insert":
-            y -= 1
-            script.append(("insert", words2[y]))
-        else:
-            x -= 1
-            script.append(("delete", words1[x]))
-
-    # Handle any remaining matches at the start
-    while x > 0 and y > 0 and words1[x - 1] == words2[y - 1]:
-        x -= 1
-        y -= 1
-        script.append(("equal", words1[x]))
-
+    for d in range(n_trace - 1, 0, -1):
+         v = <int*> PyCapsule_GetPointer(trace[d - 1], b"V_ptr")
+         k = x - y
+         left = get_deletion(v, k - 1, offset, size)
+         right = get_deletion(v, k + 1, offset, size)
+         if k == -d or (k != d and left < right):
+              prev_k = k + 1
+              prev_x = get_insertion(v, prev_k, offset, size)
+              is_insert = True
+         else:
+              prev_k = k - 1
+              prev_x = get_deletion(v, prev_k, offset, size) + 1
+              is_insert = False
+         prev_y = prev_x - prev_k
+         snake_len = (x - prev_x) if (x - prev_x) < (y - prev_y) else (y - prev_y)
+         for i in range(snake_len):
+              x -= 1
+              y -= 1
+              script.append(("equal", words1[x]))
+         if is_insert:
+              y -= 1
+              script.append(("insert", words2[y]))
+         else:
+              x -= 1
+              script.append(("delete", words1[x]))
+    snake_len = x if x < y else y
+    for i in range(snake_len):
+         x -= 1
+         y -= 1
+         script.append(("equal", words1[x]))
     script.reverse()
+    for capsule in trace:
+         free(<int*> PyCapsule_GetPointer(capsule, b"V_ptr"))
     return script
