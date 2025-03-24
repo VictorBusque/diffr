@@ -11,9 +11,15 @@ from .myers import diff_line, tokenize
 def diff_code(original: str, updated: str) -> List[Tuple[str, str]]:
     """
     Compute a diff between two texts using a patience diff algorithm.
-    Returns a list of (original_line, updated_line) tuples.
-    For unchanged lines, both strings are equal.
-    For insertions/deletions one side is the empty string.
+
+    Args:
+        original (str): The original text.
+        updated (str): The updated text.
+
+    Returns:
+        List[Tuple[str, str]]: A list of (original_line, updated_line) tuples.
+        For unchanged lines, both strings are equal.
+        For insertions/deletions one side is the empty string.
     """
     cdef list orig_lines = original.splitlines()
     cdef list upd_lines = updated.splitlines()
@@ -23,6 +29,17 @@ def _diff_recursive(orig, upd, int ostart, int oend, int ustart, int uend):
     """
     Recursively diff the slices orig[ostart:oend] and upd[ustart:uend]
     using the patience algorithm. Always returns whole-line tuples.
+
+    Args:
+        orig (list): List of original lines.
+        upd (list): List of updated lines.
+        ostart (int): Start index for original lines.
+        oend (int): End index for original lines.
+        ustart (int): Start index for updated lines.
+        uend (int): End index for updated lines.
+
+    Returns:
+        list: A list of tuples representing the diff.
     """
     cdef list result = []
     cdef int len_orig, len_upd, min_len, k
@@ -108,7 +125,12 @@ def _longest_increasing_subsequence(common):
     """
     Given a list of tuples (i, j, line) sorted by i (and then j),
     compute the longest increasing subsequence based on the j values.
-    Returns the subsequence as a list of tuples.
+
+    Args:
+        common (list): List of tuples (i, j, line).
+
+    Returns:
+        list: The longest increasing subsequence as a list of tuples.
     """
     cdef int n = len(common)
     if n == 0:
@@ -156,18 +178,14 @@ def _longest_increasing_subsequence(common):
 def diff_hunks(original: str, updated: str) -> dict:
     """
     Compute a diff between two texts and return a dictionary that contains
-    only the hunks (changed blocks). Each hunk is a dict with:
-      - "old_range": {"start": int, "end": int}
-      - "new_range": {"start": int, "end": int}
-      - "lines": list of diff dicts for each changed line.
+    only the hunks (changed blocks).
 
-    For each diff line (a tuple of (orig, upd)):
-      - If both sides are identical, the type is "equal" (and used as a hunk boundary).
-      - If one side is empty, the type is "insert" or "delete".
-      - Otherwise, the type is "replace" and an inline diff is computed via Myers diff.
+    Args:
+        original (str): The original text.
+        updated (str): The updated text.
 
-    Returns a dict of the form:
-        {"hunks": [ hunk, hunk, ... ]}
+    Returns:
+        dict: A dictionary containing the hunks.
     """
     cdef list raw_diff = diff_code(original, updated)
     cdef int i, n = len(raw_diff)
@@ -247,6 +265,12 @@ cdef dict _build_hunk(list hunk_entries):
     """
     Given a list of diff dict entries, compute the old/new line ranges and
     return a hunk dict.
+
+    Args:
+        hunk_entries (list): List of diff dict entries.
+
+    Returns:
+        dict: A dictionary representing the hunk.
     """
     cdef int ln
     cdef int min_old = 0, max_old = 0, min_new = 0, max_new = 0

@@ -16,6 +16,19 @@ cdef bint is_alphanumeric(int ch):
 
 @cython.final
 cpdef list[str] tokenize(str text):
+    """
+    Tokenizes the input text into a list of strings, separating by whitespace and alphanumeric characters.
+
+    This function scans through the input text and groups contiguous sequences of separators
+    (whitespace characters) and alphanumeric characters into tokens. Non-alphanumeric and non-separator
+    characters are treated as individual tokens.
+
+    Parameters:
+        text (str): The input text to be tokenized
+
+    Returns:
+        list[str]: A list of tokens extracted from the input text
+    """
     cdef:
         Py_ssize_t i = 0, n = len(text), start
         list tokens = []
@@ -46,6 +59,33 @@ cpdef list[str] tokenize(str text):
 
 @cython.final
 cpdef list[tuple[str, str]] diff_line(str original, str updated):
+    """
+    Implements the Myers diff algorithm to find differences between two text lines.
+
+    This function computes the shortest edit script that transforms the original line
+    into the updated line using the Myers diff algorithm. It first tokenizes both
+    lines into comparable units and then finds the minimal set of insertions and
+    deletions needed to transform one into the other.
+
+    The algorithm works by:
+    1. Tokenizing both strings into word sequences
+    2. Finding the shortest path from (0,0) to (N,M) in the edit graph
+    3. Converting the path into a series of edit operations
+    4. Backtracking through the solution to build the diff
+
+    Parameters:
+        original (str): The original text line
+        updated (str): The updated text line
+
+    Returns:
+        list[tuple[str, str]]: A list of tuples where each tuple consists of:
+            - An operation string: "equal", "insert", or "delete"
+            - The token the operation applies to
+
+    Time complexity: O((N+M)*D) where N and M are the lengths of the input sequences
+    and D is the edit distance between them.
+    Space complexity: O((N+M)²)
+    """
     cdef:
         list[str] words1 = tokenize(original) if original else []
         list[str] words2 = tokenize(updated) if updated else []
@@ -160,6 +200,25 @@ cpdef list[tuple[str, str]] diff_line(str original, str updated):
 
 
 cdef list _backtrack_fast(list words1, list words2, list trace, int offset, Py_ssize_t size):
+    """
+    Backtrack through the diff trace to construct an edit script that transforms words1 into words2.
+
+    This function uses the stored trace from the Myers diff algorithm to efficiently construct
+    a sequence of edit operations (equal, insert, delete) by working backwards from the end
+    point. The backtracking relies on the V vectors stored at each step of the forward pass
+    to determine the optimal path through the edit graph.
+
+    Parameters:
+        words1 (list): The original list of tokens
+        words2 (list): The modified list of tokens
+        trace (list): List of PyCapsules containing snapshots of the V vector at each edit step
+        offset (int): The offset used to index into V vectors (V[k+offset] where k is the diagonal)
+        size (Py_ssize_t): The size of the V vectors
+
+    Returns:
+        list: A list of tuples (operation, token) where operation is one of
+              "equal", "insert", or "delete", and token is the affected token.
+    """
     cdef:
         list script = []
         Py_ssize_t x = len(words1)
