@@ -1,0 +1,4 @@
+include diffr/core/*.pyi
+include diffr/core/*.pyx
+include diffr/core/*.py
+recursive-include diffr *.py *.pyx *.pyi

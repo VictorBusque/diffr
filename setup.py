@@ -43,6 +43,10 @@ setup(
     setup_requires=setup_requires,
     install_requires=install_requires,
     ext_modules=get_extensions(),
+    package_data={
+        "diffr": ["*.pyi", "**/*.pyi"],
+    },
+    include_package_data=True,
     entry_points={
         "console_scripts": [
             "diffr = diffr.cli:main",
