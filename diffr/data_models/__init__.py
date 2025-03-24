@@ -1,3 +1,3 @@
-from .diff_model import Diff, DiffHunk, DiffLine
+from .diff_model import Diff, DiffLine, Hunk
 
-__all__ = ["Diff", "DiffHunk", "DiffLine"]
+__all__ = ["Diff", "Hunk", "DiffLine"]
