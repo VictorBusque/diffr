@@ -47,6 +47,8 @@ jobs:
   create_release:
     runs-on: ubuntu-latest
     needs: build
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
@@ -68,7 +70,6 @@ jobs:
       - name: Get current version
         id: get_version
         run: |
-          # Capture only the last line (the version number)
           VERSION=$(python setup.py --version | tail -n1)
           echo "Current version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -89,24 +90,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION=${{ steps.bump_version.outputs.new_version }}
-          echo "Creating release v$NEW_VERSION"
-      
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: application/json" \
             -d "{\"tag_name\": \"v$NEW_VERSION\", \"target_commitish\": \"main\", \"name\": \"v$NEW_VERSION\", \"body\": \"Release $NEW_VERSION\", \"draft\": false, \"prerelease\": false}" \
             https://api.github.com/repos/${{ github.repository }}/releases)
-      
+
           echo "GitHub API Response:"
           echo "$RESPONSE"
-      
+
           UPLOAD_URL=$(echo "$RESPONSE" | jq -r .upload_url)
-      
           if [ "$UPLOAD_URL" = "null" ] || [ -z "$UPLOAD_URL" ]; then
-            echo "❌ Failed to extract upload_url from API response"
+            echo "❌ Failed to extract upload_url"
             exit 1
           fi
-      
           UPLOAD_URL=${UPLOAD_URL%\{*}
           echo "✅ upload_url=$UPLOAD_URL"
           echo "upload_url=$UPLOAD_URL" >> $GITHUB_OUTPUT
@@ -143,11 +140,13 @@ jobs:
           else
             UPLOAD_URL="$RELEASE_UPLOAD_URL"
           fi
+
           echo "Uploading final-release.zip to $UPLOAD_URL"
           if [ -z "$UPLOAD_URL" ]; then
-            echo "Error: UPLOAD_URL is empty. Exiting."
+            echo "❌ Error: UPLOAD_URL is empty. Exiting."
             exit 1
           fi
+
           curl --data-binary @"final-release.zip" \
             -H "Content-Type: application/zip" \
             -H "Authorization: token ${GITHUB_TOKEN}" \
