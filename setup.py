@@ -43,4 +43,9 @@ setup(
     setup_requires=setup_requires,
     install_requires=install_requires,
     ext_modules=get_extensions(),
+    entry_points={
+        "console_scripts": [
+            "diffr = diffr.cli:main",
+        ],
+    },
 )

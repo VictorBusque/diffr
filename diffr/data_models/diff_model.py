@@ -135,7 +135,7 @@ class Diff:
         return "\n\n".join(str(hunk) for hunk in self.hunks)
 
     @classmethod
-    def from_diff(cls, data: dict) -> "Diff":
+    def from_hunks(cls, data: dict) -> "Diff":
         """
         Create a Diff object from a dictionary representation.
 

@@ -6,6 +6,14 @@ cimport cython
 from libc.string cimport memcpy
 from cpython.pycapsule cimport PyCapsule_New, PyCapsule_GetPointer
 
+@cython.inline
+cdef bint is_separator(int ch):
+    return ch == 32 or (9 <= ch <= 13)
+
+@cython.inline
+cdef bint is_alphanumeric(int ch):
+    return (48 <= ch <= 57) or (65 <= ch <= 90) or (97 <= ch <= 122) or (ch == 95)
+
 @cython.final
 cpdef list[str] tokenize(str text):
     cdef:
@@ -15,14 +23,17 @@ cpdef list[str] tokenize(str text):
 
     while i < n:
         ch = ord(text[i])
-        if ch == 32 or (9 <= ch <= 13):
-            i += 1
-            continue
-        if (48 <= ch <= 57) or (65 <= ch <= 90) or (97 <= ch <= 122) or (ch == 95):
+        if is_separator(ch):
+            # Group separators together as tokens
+            start = i
+            while i < n and is_separator(ord(text[i])):
+                i += 1
+            tokens.append(text[start:i])
+        elif is_alphanumeric(ch):
             start = i
             while i < n:
                 ch = ord(text[i])
-                if not ((48 <= ch <= 57) or (65 <= ch <= 90) or (97 <= ch <= 122) or (ch == 95)):
+                if not is_alphanumeric(ch):
                     break
                 i += 1
             tokens.append(text[start:i])

@@ -41,5 +41,5 @@ def process_order(order_data):
 """
     output = diff_hunks(original, updated)
     print(json.dumps(output, indent=2))
-    diff = Diff.from_diff(output)
+    diff = Diff.from_hunks(output)
     print(diff)
