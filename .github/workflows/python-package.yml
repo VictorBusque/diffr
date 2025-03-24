@@ -40,7 +40,7 @@ jobs:
       - name: Build package
         run: python setup.py sdist bdist_wheel
 
-      - name: Upload artifact
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.python-version }}
@@ -71,7 +71,8 @@ jobs:
       - name: Get current version
         id: get_version
         run: |
-          VERSION=$(python setup.py --version)
+          # Capture only the last line of the output (the version number)
+          VERSION=$(python setup.py --version | tail -n1)
           echo "Current version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
@@ -91,15 +92,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION=${{ steps.bump_version.outputs.new_version }}
-          RESPONSE=$(curl -X POST \
+          RESPONSE=$(curl -s -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: application/json" \
-            -d "{\"tag_name\": \"v$NEW_VERSION\", \"name\": \"v$NEW_VERSION\", \"body\": \"Release $NEW_VERSION\", \"draft\": false, \"prerelease\": false}" \
+            -d "{\"tag_name\": \"v$NEW_VERSION\", \"target_commitish\": \"main\", \"name\": \"v$NEW_VERSION\", \"body\": \"Release $NEW_VERSION\", \"draft\": false, \"prerelease\": false}" \
             https://api.github.com/repos/${{ github.repository }}/releases)
-
-          # Extract release URL from response
+          
+          # Extract release upload URL from response (removing the template part)
           UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url)
-          echo "upload_url=$UPLOAD_URL" >> $GITHUB_OUTPUT
+          echo "upload_url=${UPLOAD_URL%\{*}" >> $GITHUB_OUTPUT
 
   publish:
     needs: [build, create_release]
@@ -118,22 +119,24 @@ jobs:
           find dist -name '*.tar.gz' -exec mv {} final-dist/ \;
           find dist -name '*.whl' -exec mv {} final-dist/ \;
 
-      - name: Upload Release Assets
+      - name: Create ZIP artifact
+        run: |
+          # Archive all merged artifacts into a single zip file
+          zip -j final-release.zip final-dist/*
+
+      - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # For auto-created releases
+          # Determine the release upload URL
           if [ "${{ github.event_name }}" != "release" ]; then
             UPLOAD_URL="${{ needs.create_release.outputs.upload_url }}"
           else
-            # For manually created releases
             UPLOAD_URL="${{ github.event.release.upload_url }}"
           fi
 
-          for asset in final-dist/*; do
-            echo "Uploading $asset"
-            curl --data-binary @"$asset" \
-              -H "Content-Type: application/octet-stream" \
-              -H "Authorization: token ${GITHUB_TOKEN}" \
-              "${UPLOAD_URL%\{*\}}?name=$(basename "$asset")"
-          done
+          echo "Uploading final-release.zip"
+          curl --data-binary @"final-release.zip" \
+            -H "Content-Type: application/zip" \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            "${UPLOAD_URL}?name=final-release.zip"
