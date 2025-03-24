@@ -1,6 +1,6 @@
 # diffr
 
-A Python package for diffr.
+A Python package for analyzing and visualizing differences between text files.
 
 ## Installation
 
@@ -11,9 +11,15 @@ pip install diffr
 ## Usage
 
 ```python
-import diffr
+from diffr import diff_code, diff_hunks, diff_line
 
-# Add usage examples here
+# Compare two text blocks
+result = diff_line("hello world", "hello there")
+print(result)
+
+# Compare code with detailed hunks
+hunks = diff_hunks("def example():\n    return True", "def example():\n    return False")
+print(hunks)
 ```
 
 ## Development
