@@ -89,21 +89,26 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION=${{ steps.bump_version.outputs.new_version }}
+          echo "Creating release v$NEW_VERSION"
+      
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: application/json" \
             -d "{\"tag_name\": \"v$NEW_VERSION\", \"target_commitish\": \"main\", \"name\": \"v$NEW_VERSION\", \"body\": \"Release $NEW_VERSION\", \"draft\": false, \"prerelease\": false}" \
             https://api.github.com/repos/${{ github.repository }}/releases)
-          
-          UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url)
+      
+          echo "GitHub API Response:"
+          echo "$RESPONSE"
+      
+          UPLOAD_URL=$(echo "$RESPONSE" | jq -r .upload_url)
+      
           if [ "$UPLOAD_URL" = "null" ] || [ -z "$UPLOAD_URL" ]; then
-            echo "Release creation may have failed; fetching existing release info."
-            RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-              https://api.github.com/repos/${{ github.repository }}/releases/tags/v$NEW_VERSION)
-            UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url)
+            echo "❌ Failed to extract upload_url from API response"
+            exit 1
           fi
-          # Remove the template portion from the URL
+      
           UPLOAD_URL=${UPLOAD_URL%\{*}
+          echo "✅ upload_url=$UPLOAD_URL"
           echo "upload_url=$UPLOAD_URL" >> $GITHUB_OUTPUT
 
   publish:
