@@ -98,13 +98,13 @@ jobs:
             -d "{\"tag_name\": \"v$NEW_VERSION\", \"target_commitish\": \"main\", \"name\": \"v$NEW_VERSION\", \"body\": \"Release $NEW_VERSION\", \"draft\": false, \"prerelease\": false}" \
             https://api.github.com/repos/${{ github.repository }}/releases)
           
-          # Extract release upload URL from response (removing the template part)
+          # Remove the template portion from the upload URL (everything after '{')
           UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url)
           echo "upload_url=${UPLOAD_URL%\{*}" >> $GITHUB_OUTPUT
 
   publish:
     needs: [build, create_release]
-    # Run if either it's a manually created release or after we auto-created one
+    # Run if it's a manually created release or after the auto-created one
     if: github.event_name == 'release' || needs.create_release.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -127,15 +127,16 @@ jobs:
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_UPLOAD_URL: ${{ github.event.release.upload_url }}
+          AUTO_RELEASE_UPLOAD_URL: ${{ needs.create_release.outputs.upload_url }}
         run: |
-          # Determine the release upload URL
-          if [ "${{ github.event_name }}" != "release" ]; then
-            UPLOAD_URL="${{ needs.create_release.outputs.upload_url }}"
+          if [ "$EVENT_NAME" != "release" ]; then
+            UPLOAD_URL="$AUTO_RELEASE_UPLOAD_URL"
           else
-            UPLOAD_URL="${{ github.event.release.upload_url }}"
+            UPLOAD_URL="$RELEASE_UPLOAD_URL"
           fi
-
-          echo "Uploading final-release.zip"
+          echo "Uploading final-release.zip to $UPLOAD_URL"
           curl --data-binary @"final-release.zip" \
             -H "Content-Type: application/zip" \
             -H "Authorization: token ${GITHUB_TOKEN}" \
