@@ -14,13 +14,13 @@ def get_extensions():  # noqa: D103
     # Define Cython extension modules
     extensions = [
         Extension(
-            "diffr.algorithms.myers_cy",
-            sources=["diffr/algorithms/myers_cy.pyx"],
+            "diffr.core.myers",
+            sources=["diffr/core/myers.pyx"],
             extra_compile_args=["-O3"],  # Optimize for speed
         ),
         Extension(
-            "diffr.algorithms.patience_cy",
-            sources=["diffr/algorithms/patience_cy.pyx"],
+            "diffr.core.patience",
+            sources=["diffr/core/patience.pyx"],
             extra_compile_args=["-O3"],  # Optimize for speed
         ),
     ]

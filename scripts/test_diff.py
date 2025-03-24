@@ -1,64 +1,79 @@
 # test_patience_diff.py
-from diffr.algorithms.patience_cy import patience_diff
+import json
+
+from diffr.core.patience import diff_hunks
+
+FUNC = diff_hunks
 
 
 def run_test(test_id, original, updated):
+    """Run a test case and print the results.
+
+    Args:
+        test_id (int): Test number
+        original (str): Original code/text
+        updated (str): Updated code/text
+
+    Returns:
+        dict: Result of the diff operation
+    """
     print(f"--- Test {test_id} ---")
     print("Original:")
     print(original)
     print("Updated:")
     print(updated)
     print("Diff Result:")
-    result = patience_diff(original, updated)
-    for line_pair in result:
-        print(line_pair)
-    print()
+    result = FUNC(original, updated)
+    print(json.dumps(result, indent=2))
+    return result
+
 
 def main():
+    """Run the main test function."""
     # Test 1: Function signature change
-    original = '''def calculate_total(items):
+    original = """def calculate_total(items):
     total = 0
     for item in items:
         total += item.price
     return total
-'''
-    updated = '''def calculate_total(items, tax_rate=0.1):
+"""
+    updated = """def calculate_total(items, tax_rate=0.1):
     total = 0
     for item in items:
         total += item.price
     total *= (1 + tax_rate)
     return total
-'''
+"""
     run_test(1, original, updated)
 
     # Test 2: Adding a new method to a class
-    original = '''class ShoppingCart:
+    original = """class ShoppingCart:
     def __init__(self):
         self.items = []
-        
+
     def add_item(self, item):
         self.items.append(item)
-        
+
     def get_total(self):
         return sum(item.price for item in self.items)
-'''
-    updated = '''class ShoppingCart:
+"""
+    updated = """class ShoppingCart:
     def __init__(self):
         self.items = []
-        
+
     def add_item(self, item):
         self.items.append(item)
-        
+
     def remove_item(self, item_id):
         self.items = [item for item in self.items if item.id != item_id]
-        
+
     def get_total(self):
         return sum(item.price for item in self.items)
-'''
+"""
     run_test(2, original, updated)
 
     # Test 3: Refactoring - extract method
-    original = '''def process_order(order_data):
+    original = """def process_order(order_data):
     # Validate the order
     if not order_data.get('customer_id'):
         raise ValueError("Missing customer ID")
@@ -67,14 +82,14 @@ def main():
     for item in order_data.get('items'):
         if not item.get('product_id'):
             raise ValueError("Item missing product ID")
-    
+
     # Process the order
     total = sum(item.get('price', 0) for item in order_data.get('items'))
     order_id = generate_order_id()
     save_to_database(order_id, order_data, total)
     return order_id
-'''
-    updated = '''def validate_order(order_data):
+"""
+    updated = """def validate_order(order_data):
     if not order_data.get('customer_id'):
         raise ValueError("Missing customer ID")
     if not order_data.get('items'):
@@ -86,17 +101,17 @@ def main():
 def process_order(order_data):
     # Validate the order
     validate_order(order_data)
-    
+
     # Process the order
     total = sum(item.get('price', 0) for item in order_data.get('items'))
     order_id = generate_order_id()
     save_to_database(order_id, order_data, total)
     return order_id
-'''
+"""
     run_test(3, original, updated)
 
     # Test 4: Bug fix - fixing a logical error
-    original = '''def calculate_discount(subtotal, user_type):
+    original = """def calculate_discount(subtotal, user_type):
     if user_type == "premium":
         if subtotal >= 100:
             return subtotal * 0.15
@@ -106,8 +121,8 @@ def process_order(order_data):
         return subtotal * 0.05
     else:
         return 0
-'''
-    updated = '''def calculate_discount(subtotal, user_type):
+"""
+    updated = """def calculate_discount(subtotal, user_type):
     if user_type == "premium":
         if subtotal >= 100:
             return subtotal * 0.15
@@ -120,9 +135,9 @@ def process_order(order_data):
             return 0
     else:
         return 0
-'''
+"""
     run_test(4, original, updated)
-    
+
     # Test 5: Imports and docstring changes
     original = '''import os
 import sys
@@ -141,7 +156,7 @@ from datetime import datetime
 def log_error(error_msg, level='ERROR'):
     """
     Log error messages using the logging module.
-    
+
     Args:
         error_msg: The error message to log
         level: The logging level (default: ERROR)
@@ -150,9 +165,9 @@ def log_error(error_msg, level='ERROR'):
     getattr(logging, level.lower())(error_msg)
 '''
     run_test(5, original, updated)
-    
+
     # Test 6: HTML code changes
-    original = '''<!DOCTYPE html>
+    original = """<!DOCTYPE html>
 <html>
 <head>
     <title>My Website</title>
@@ -177,8 +192,8 @@ def log_error(error_msg, level='ERROR'):
     </footer>
 </body>
 </html>
-'''
-    updated = '''<!DOCTYPE html>
+"""
+    updated = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -216,11 +231,11 @@ def log_error(error_msg, level='ERROR'):
     </footer>
 </body>
 </html>
-'''
+"""
     run_test(6, original, updated)
-    
+
     # Test 7: JSON configuration changes
-    original = '''{
+    original = """{
   "name": "my-app",
   "version": "1.0.0",
   "dependencies": {
@@ -233,8 +248,8 @@ def log_error(error_msg, level='ERROR'):
     "test": "jest"
   }
 }
-'''
-    updated = '''{
+"""
+    updated = """{
   "name": "my-app",
   "version": "1.2.0",
   "dependencies": {
@@ -254,26 +269,26 @@ def log_error(error_msg, level='ERROR'):
     "lint": "eslint ."
   }
 }
-'''
+"""
     run_test(7, original, updated)
-    
+
     # Test 8: SQL query changes
-    original = '''SELECT 
+    original = """SELECT
   customers.customer_id,
   customers.name,
   customers.email,
   orders.order_date,
   orders.total_amount
-FROM 
+FROM
   customers
-JOIN 
+JOIN
   orders ON customers.customer_id = orders.customer_id
-WHERE 
+WHERE
   orders.order_date >= '2023-01-01'
-ORDER BY 
+ORDER BY
   orders.order_date DESC;
-'''
-    updated = '''SELECT 
+"""
+    updated = """SELECT
   c.customer_id,
   c.name,
   c.email,
@@ -281,22 +296,23 @@ ORDER BY
   o.total_amount,
   p.payment_method,
   p.payment_date
-FROM 
+FROM
   customers c
-JOIN 
+JOIN
   orders o ON c.customer_id = o.customer_id
 LEFT JOIN
   payments p ON o.order_id = p.order_id
-WHERE 
+WHERE
   o.order_date >= '2023-01-01'
   AND o.status = 'completed'
 GROUP BY
   c.customer_id, o.order_id, p.payment_id
-ORDER BY 
+ORDER BY
   o.order_date DESC
 LIMIT 100;
-'''
+"""
     run_test(8, original, updated)
+
 
 if __name__ == "__main__":
     main()
