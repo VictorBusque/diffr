@@ -1,175 +1,124 @@
 # cython: boundscheck=True, wraparound=True, cdivision=False
 
 from typing import List, Tuple
-# Import diff_line and tokenize from your Myers diff module.
-from .myers import diff_line, tokenize
+from .myers import diff_line, tokenize  # For inline diffs only
 
 # ---------------------------------------------------------------------
 # Patience diff functions (line-level)
 # ---------------------------------------------------------------------
 
 def diff_code(original: str, updated: str) -> List[Tuple[str, str]]:
-    """
-    Compute a diff between two texts using a patience diff algorithm.
-
-    Args:
-        original (str): The original text.
-        updated (str): The updated text.
-
-    Returns:
-        List[Tuple[str, str]]: A list of (original_line, updated_line) tuples.
-        For unchanged lines, both strings are equal.
-        For insertions/deletions one side is the empty string.
-    """
-    cdef list orig_lines = original.splitlines()
-    cdef list upd_lines = updated.splitlines()
+    orig_lines = original.splitlines()
+    upd_lines = updated.splitlines()
     return _diff_recursive(orig_lines, upd_lines, 0, len(orig_lines), 0, len(upd_lines))
 
-def _diff_recursive(orig, upd, int ostart, int oend, int ustart, int uend):
-    """
-    Recursively diff the slices orig[ostart:oend] and upd[ustart:uend]
-    using the patience algorithm. Always returns whole-line tuples.
+def _diff_recursive(orig, upd, ostart, oend, ustart, uend):
+    result = []
 
-    Args:
-        orig (list): List of original lines.
-        upd (list): List of updated lines.
-        ostart (int): Start index for original lines.
-        oend (int): End index for original lines.
-        ustart (int): Start index for updated lines.
-        uend (int): End index for updated lines.
-
-    Returns:
-        list: A list of tuples representing the diff.
-    """
-    cdef list result = []
-    cdef int len_orig, len_upd, min_len, k
-    cdef int prev_o, prev_u, i, j
-    cdef tuple anchor
-
-    # Base cases: one or both ranges are empty.
+    # Base cases: empty ranges
     if ostart >= oend and ustart >= uend:
         return result
     elif ostart >= oend:
-        for j in range(ustart, uend):
-            result.append(("", upd[j]))
-        return result
+        return [("", line) for line in upd[ustart:uend]]
     elif ustart >= uend:
-        for i in range(ostart, oend):
-            result.append((orig[i], ""))
-        return result
+        return [(line, "") for line in orig[ostart:oend]]
 
-    # Build dictionaries for lines that are unique in each slice.
-    cdef dict orig_uniques = {}
+    # Find unique common lines as potential anchors
+    orig_uniques = {}
     for i in range(ostart, oend):
         line = orig[i]
-        if line in orig_uniques:
-            orig_uniques[line] = -1
-        else:
-            orig_uniques[line] = i
+        orig_uniques[line] = i if line not in orig_uniques else -1
 
-    cdef dict upd_uniques = {}
+    upd_uniques = {}
     for j in range(ustart, uend):
         line = upd[j]
-        if line in upd_uniques:
-            upd_uniques[line] = -1
-        else:
-            upd_uniques[line] = j
+        upd_uniques[line] = j if line not in upd_uniques else -1
 
-    # Collect common unique lines.
-    cdef list common = []
-    for line, i_val in orig_uniques.items():
-        j_val = upd_uniques.get(line, None)
-        if i_val != -1 and j_val is not None and j_val != -1:
-            common.append((i_val, j_val, line))
-    # Sort common anchors by original then updated index.
-    common.sort(key=lambda x: (x[0], x[1]))
+    # Collect common unique lines (anchors)
+    common = []
+    for line, i in orig_uniques.items():
+        if i != -1 and upd_uniques.get(line, -1) != -1:
+            common.append((i, upd_uniques[line]))
 
-    # Compute the longest increasing subsequence (LIS) based on updated index.
-    cdef list lis = _longest_increasing_subsequence(common)
+    # Sort by original index and find LIS on updated index
+    common.sort()
+    lis = _longest_increasing_subsequence([j for i, j in common])
 
     if not lis:
-        # No common anchors found.
-        if (ostart + 1 == oend) and (ustart + 1 == uend):
-            # Simply return the whole line pair.
-            result.append((orig[ostart], upd[ustart]))
-            return result
-        else:
-            # Pair as many lines as possible; do not call diff_line here.
-            len_orig = oend - ostart
-            len_upd = uend - ustart
-            min_len = len_orig if len_orig < len_upd else len_upd
+        # No anchors: Fallback to line-level Myers diff for this chunk
+        myers_diff = _myers_line_diff(orig[ostart:oend], upd[ustart:uend])
+        return myers_diff
 
-            for k in range(min_len):
-                result.append((orig[ostart+k], upd[ustart+k]))
-            for k in range(min_len, len_orig):
-                result.append((orig[ostart+k], ""))
-            for k in range(min_len, len_upd):
-                result.append(("", upd[ustart+k]))
-            return result
-
-    # Recursively diff segments around each common anchor.
-    prev_o = ostart
-    prev_u = ustart
+    # Recurse around anchors
+    prev_o, prev_u = ostart, ustart
     for anchor in lis:
-        i = anchor[0]
-        j = anchor[1]
-        result.extend(_diff_recursive(orig, upd, prev_o, i, prev_u, j))
-        # The anchor line is common.
+        i, j = common[lis.index(anchor)]  # Match anchor indices
+        result += _diff_recursive(orig, upd, prev_o, i, prev_u, j)
         result.append((orig[i], upd[j]))
-        prev_o = i + 1
-        prev_u = j + 1
-    result.extend(_diff_recursive(orig, upd, prev_o, oend, prev_u, uend))
+        prev_o, prev_u = i + 1, j + 1
+
+    result += _diff_recursive(orig, upd, prev_o, oend, prev_u, uend)
     return result
 
-def _longest_increasing_subsequence(common):
-    """
-    Given a list of tuples (i, j, line) sorted by i (and then j),
-    compute the longest increasing subsequence based on the j values.
-
-    Args:
-        common (list): List of tuples (i, j, line).
-
-    Returns:
-        list: The longest increasing subsequence as a list of tuples.
-    """
-    cdef int n = len(common)
-    if n == 0:
-        return []
-    cdef list tails = []          # stores the last j value of each subsequence length
-    cdef list tails_indices = []  # stores indices in 'common' corresponding to tails
-    cdef list prev = [ -1 for _ in range(n) ]  # predecessor indices for reconstruction
-    cdef int index, pos, lo, hi, mid
-    cdef tuple curr
-
-    for index in range(n):
-        curr = common[index]
-        lo = 0
-        hi = len(tails)
+def _longest_increasing_subsequence(indices):
+    """Computes LIS using patience sorting."""
+    tails = []
+    for idx in indices:
+        lo, hi = 0, len(tails)
         while lo < hi:
             mid = (lo + hi) // 2
-            if curr[1] > tails[mid]:
+            if tails[mid] < idx:
                 lo = mid + 1
             else:
                 hi = mid
-        pos = lo
-        if pos == len(tails):
-            tails.append(curr[1])
-            tails_indices.append(index)
+        if lo == len(tails):
+            tails.append(idx)
         else:
-            tails[pos] = curr[1]
-            tails_indices[pos] = index
-        if pos > 0:
-            prev[index] = tails_indices[pos - 1]
-        else:
-            prev[index] = -1
+            tails[lo] = idx
+    return tails
 
-    cdef list lis = []
-    pos = tails_indices[-1]
-    while pos != -1:
-        lis.append(common[pos])
-        pos = prev[pos]
-    lis.reverse()
-    return lis
+def _myers_line_diff(a, b):
+    """Myers algorithm for line-level diffs between lists a and b."""
+    # Implement Myers' algorithm here (pseudocode simplified)
+    # This is a simplified version focusing on the key logic
+    v = {1: 0}
+    for d in range(0, len(a) + len(b) + 1):
+        for k in range(-d, d + 1, 2):
+            if k == -d or (k != d and v[k - 1] < v[k + 1]):
+                x = v[k + 1]
+            else:
+                x = v[k - 1] + 1
+            y = x - k
+            while x < len(a) and y < len(b) and a[x] == b[y]:
+                x += 1
+                y += 1
+            v[k] = x
+            if x >= len(a) and y >= len(b):
+                # Trace back to generate diff
+                return _trace_myers_diff(a, b, v, d, k)
+    return []
+
+def _trace_myers_diff(a, b, v, d, k):
+    x, y = len(a), len(b)
+    result = []
+
+    while x > 0 or y > 0:
+        if x > 0 and y > 0 and a[x - 1] == b[y - 1]:
+            result.append((a[x - 1], b[y - 1]))  # equal
+            x -= 1
+            y -= 1
+        elif x > 0 and y > 0:
+            result.append((a[x - 1], b[y - 1]))  # replace
+            x -= 1
+            y -= 1
+        elif y > 0:
+            result.append(("", b[y - 1]))  # insert
+            y -= 1
+        elif x > 0:
+            result.append((a[x - 1], ""))  # delete
+            x -= 1
+
+    return list(reversed(result))
 
 # ---------------------------------------------------------------------
 # Grouping into hunks & building final output dict

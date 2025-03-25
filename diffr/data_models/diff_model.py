@@ -26,6 +26,7 @@ class Colors:
     BRIGHT_RED = "\033[1;91m"
     BRIGHT_GREEN = "\033[1;92m"
     STRIKE = "\033[9m"  # Strike-through formatting
+    UNDERLINE = "\033[4m"
     RESET = "\033[0m"
 
 
@@ -55,7 +56,7 @@ class InlineDiff:
         if self.type == InlineDiffType.DELETE:
             return f"{Colors.STRIKE}{Colors.BRIGHT_RED}{self.value}{Colors.RESET}"
         elif self.type == InlineDiffType.INSERT:
-            return f"{Colors.BRIGHT_GREEN}{self.value}{Colors.RESET}"
+            return f"{Colors.UNDERLINE}{Colors.BRIGHT_GREEN}{self.value}{Colors.RESET}"
         else:  # Equal
             return self.value
 
