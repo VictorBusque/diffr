@@ -6,9 +6,14 @@ from .myers import diff_line
 # ---------------------------------------------------------------------
 
 cpdef list _compute_raw_diff(str original, str updated):
-    cdef list orig_lines = original.splitlines()
-    cdef list upd_lines = updated.splitlines()
-    return _diff_recursive(orig_lines, upd_lines, 0, len(orig_lines), 0, len(upd_lines))
+    cdef list orig_lines = original.splitlines(True)  # Keep line endings
+    cdef list upd_lines = updated.splitlines(True)    # Keep line endings
+
+    # Strip line endings for comparison but preserve for output
+    cdef list orig_stripped = [line.rstrip('\r\n') for line in orig_lines]
+    cdef list upd_stripped = [line.rstrip('\r\n') for line in upd_lines]
+
+    return _diff_recursive(orig_stripped, upd_stripped, 0, len(orig_stripped), 0, len(upd_stripped))
 
 
 cdef list _diff_recursive(
@@ -105,20 +110,20 @@ cpdef list _longest_increasing_subsequence(list indices):
 # Hunk processing
 # ---------------------------------------------------------------------
 
-
-
 cdef dict _create_diff_entry(str orig_line, str upd_line, int* old_line_num, int* new_line_num, float threshold=0.4):
     cdef dict entry = {}
     cdef int line_number_old = 0
     cdef int line_number_new = 0
 
-    if orig_line:
+    # Always increment line numbers when a line exists (even if empty)
+    if orig_line is not None:
         old_line_num[0] += 1
         line_number_old = old_line_num[0]
-    if upd_line:
+    if upd_line is not None:
         new_line_num[0] += 1
         line_number_new = new_line_num[0]
 
+    # Check if both lines are identical (including empty lines)
     if orig_line == upd_line:
         entry.update({
             "type": "equal",
@@ -126,13 +131,13 @@ cdef dict _create_diff_entry(str orig_line, str upd_line, int* old_line_num, int
             "line_number_new": line_number_new,
             "content": orig_line
         })
-    elif not orig_line:
+    elif orig_line is None or not orig_line:
         entry.update({
             "type": "insert",
             "line_number_new": line_number_new,
             "content_new": upd_line
         })
-    elif not upd_line:
+    elif upd_line is None or not upd_line:
         entry.update({
             "type": "delete",
             "line_number_old": line_number_old,
@@ -166,7 +171,6 @@ cdef dict _create_diff_entry(str orig_line, str upd_line, int* old_line_num, int
             })
 
     return {k: v for k, v in entry.items() if v is not None}
-
 
 cdef list _group_hunks(list diff_entries):
     cdef list hunks = []
@@ -210,7 +214,6 @@ cdef dict _build_hunk(list hunk_entries):
 # ---------------------------------------------------------------------
 # API for processing Hunks
 # ---------------------------------------------------------------------
-
 
 cpdef dict diff_hunks(str original, str updated, float threshold=0.4):
     cdef list raw_diff = _compute_raw_diff(original, updated)
