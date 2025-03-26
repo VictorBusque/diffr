@@ -247,7 +247,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
 
 export default DiffViewer;
 """
-    output = diff_hunks(original, updated)
+    output = diff_hunks(original, updated, 0.4)
     print(json.dumps(output, indent=2))
     diff = Diff.from_hunks(output)
     print(diff)

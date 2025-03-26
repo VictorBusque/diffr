@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 import functools
 import logging
 import statistics
@@ -5,7 +6,7 @@ from collections.abc import Callable
 from time import perf_counter
 from typing import Any
 
-from diffr.core.patience import get_patience_diff_hunks_result, patience_diff
+from diffr.core.patience import diff_hunks
 
 
 def profile_performance(runs: int = 1, show_stats: bool = True):
@@ -134,6 +135,26 @@ CODE_NEW_1 = """class Configuration:
 RUNS = 1000
 
 
+def format_markdown_table(results: list[dict]) -> str:  # noqa: D103
+    header = (
+        "| Test Case                    | Lines | Avg Time (s) | Lines/sec   | Hunks | Hunks/sec |\n"
+        "|-----------------------------|-------|--------------|-------------|--------|-----------|"
+    )
+    rows = []
+    for res in results:
+        row = "| {test_case:<27} | {lines:<5} | {avg_time:<12.6f} | {lines_per_sec:>6.2f} M/s | {hunks:<6} | {hunks_per_sec:>6.2f} M/s |".format(
+            test_case=res["name"],
+            lines=res["lines"],
+            avg_time=res["avg_time"],
+            lines_per_sec=res["lines_per_sec"] / 1_000_000,
+            hunks=res["hunks"],
+            hunks_per_sec=res["hunks_per_sec"] / 1_000_000,
+        )
+        rows.append(row)
+
+    return header + "\n" + "\n".join(rows)
+
+
 def run_test(func: Callable, code_old: str, code_new: str):
     """Run a test with the given function and code snippets."""
     profiled_lambda = profile_performance(runs=RUNS)(func)
@@ -151,6 +172,7 @@ def run_test(func: Callable, code_old: str, code_new: str):
             items_per_second = n_items / avg_time
             logging.info("n_hunks: %d", n_items)
             logging.info("Hunks per second: %.2f M/s", items_per_second / 1_000_000)
+            logging.info("Total raw diff length: %d", len(diff_hunks(code_old, code_new)["hunks"]))
 
         return avg_time, result
     except Exception as e:
@@ -160,64 +182,44 @@ def run_test(func: Callable, code_old: str, code_new: str):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-
-    # Test the basic patience diff
-    def patience_diff_func(old: str, new: str):
-        """Run the patience diff algorithm on the given strings."""
-        return patience_diff(old, new)
+    benchmark_results = []
 
     # Test the hunks result function
     def patience_hunks_func(old: str, new: str):
         """Run the patience diff algorithm and return the hunks result."""
-        return get_patience_diff_hunks_result(old, new)
+        return diff_hunks(old, new)
 
     logging.info("\n===== Testing with CODE_OLD_0 and CODE_NEW_0 =====")
 
-    # Test with first code sample
-    patience_diff_time, diff_result = run_test(patience_diff_func, CODE_OLD_0, CODE_NEW_0)
-    logging.info("Patience diff time: %.6f", patience_diff_time)
-
-    # Count number of change types
-    changes = {"equal": 0, "insert": 0, "delete": 0, "replace": 0}
-    for old_line, new_line in diff_result:
-        if old_line == new_line and old_line != "":
-            changes["equal"] += 1
-        elif old_line == "":
-            changes["insert"] += 1
-        elif new_line == "":
-            changes["delete"] += 1
-        else:
-            changes["replace"] += 1
-
-    logging.info("Change summary: %s", changes)
-
     # Test hunks function with first code sample
     hunks_time, hunks_result = run_test(patience_hunks_func, CODE_OLD_0, CODE_NEW_0)
+    benchmark_results.append(
+        {
+            "name": "CODE_OLD_0 vs CODE_NEW_0",
+            "lines": len(CODE_OLD_0.splitlines()) + len(CODE_NEW_0.splitlines()),
+            "avg_time": hunks_time,
+            "lines_per_sec": (len(CODE_OLD_0.splitlines()) + len(CODE_NEW_0.splitlines())) / hunks_time,
+            "hunks": len(hunks_result["hunks"]),
+            "hunks_per_sec": len(hunks_result["hunks"]) / hunks_time,
+        }
+    )
     logging.info("Patience hunks time: %.6f", hunks_time)
     logging.info("Number of hunks: %d", len(hunks_result["hunks"]))
 
     logging.info("\n===== Testing with CODE_OLD_1 and CODE_NEW_1 =====")
 
-    # Test with second code sample
-    patience_diff_time, diff_result = run_test(patience_diff_func, CODE_OLD_1, CODE_NEW_1)
-    logging.info("Patience diff time: %.6f", patience_diff_time)
-
-    # Count number of change types
-    changes = {"equal": 0, "insert": 0, "delete": 0, "replace": 0}
-    for old_line, new_line in diff_result:
-        if old_line == new_line and old_line != "":
-            changes["equal"] += 1
-        elif old_line == "":
-            changes["insert"] += 1
-        elif new_line == "":
-            changes["delete"] += 1
-        else:
-            changes["replace"] += 1
-
-    logging.info("Change summary: %s", changes)
-
     # Test hunks function with second code sample
     hunks_time, hunks_result = run_test(patience_hunks_func, CODE_OLD_1, CODE_NEW_1)
+    benchmark_results.append(
+        {
+            "name": "CODE_OLD_1 vs CODE_NEW_1",
+            "lines": len(CODE_OLD_1.splitlines()) + len(CODE_NEW_1.splitlines()),
+            "avg_time": hunks_time,
+            "lines_per_sec": (len(CODE_OLD_1.splitlines()) + len(CODE_NEW_1.splitlines())) / hunks_time,
+            "hunks": len(hunks_result["hunks"]),
+            "hunks_per_sec": len(hunks_result["hunks"]) / hunks_time,
+        }
+    )
     logging.info("Patience hunks time: %.6f", hunks_time)
     logging.info("Number of hunks: %d", len(hunks_result["hunks"]))
 
@@ -230,18 +232,27 @@ if __name__ == "__main__":
     # Use fewer runs for the large file test
     large_runs = 100
 
-    # Test patience diff with large files
-    large_diff_func = profile_performance(runs=large_runs)(patience_diff_func)
-    start_time = perf_counter()
-    large_diff_result = large_diff_func(large_old, large_new)
-    end_time = perf_counter()
-
-    logging.info("Large patience diff time: %.6f", statistics.mean(large_diff_func.execution_times))
-    logging.info("Number of diff entries: %d", len(large_diff_result))
-
     # Test hunks function with large files
-    large_hunks_func = profile_performance(runs=large_runs)(patience_hunks_func)
-    large_hunks_result = large_hunks_func(large_old, large_new)
+    large_hunks_time, large_hunks_result = run_test(patience_hunks_func, large_old, large_new)
+    benchmark_results.append(
+        {
+            "name": "Large combined files (10x each)",
+            "lines": len(large_old.splitlines()) + len(large_new.splitlines()),
+            "avg_time": large_hunks_time,
+            "lines_per_sec": (len(large_old.splitlines()) + len(large_new.splitlines())) / large_hunks_time,
+            "hunks": len(large_hunks_result["hunks"]),
+            "hunks_per_sec": len(large_hunks_result["hunks"]) / large_hunks_time,
+        }
+    )
 
-    logging.info("Large patience hunks time: %.6f", statistics.mean(large_hunks_func.execution_times))
+    logging.info("Large patience hunks time: %.6f", large_hunks_time)
     logging.info("Number of hunks in large file: %d", len(large_hunks_result["hunks"]))
+
+    markdown_table = format_markdown_table(benchmark_results)
+    print("\nMarkdown Benchmark Table:\n")
+    print(markdown_table)
+
+    # # Si querés guardar en archivo:
+    # with open("benchmark_results.md", "w") as f:
+    #     f.write("# 📈 Patience Diff Benchmark Results\n\n")
+    #     f.write(markdown_table + "\n")

@@ -35,6 +35,10 @@ def get_extensions():  # noqa: D103
                 "boundscheck": False,
                 "wraparound": False,
                 "nonecheck": False,
+                "cdivision": True,
+                "initializedcheck": False,
+                "overflowcheck": False,
+                "infer_types": True,  # infiere automáticamente algunos tipos
             },
         )
     except ImportError:

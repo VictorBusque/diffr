@@ -1,6 +1,3 @@
-# cython: boundscheck=False, wraparound=False
-# cython: language_level=3
-
 from libc.stdlib cimport malloc, free
 cimport cython
 from libc.string cimport memcpy
